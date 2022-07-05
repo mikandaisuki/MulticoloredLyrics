@@ -114,13 +114,11 @@ const animateChar = function (now, unit) {
 };
 
 function onAppReady(app){
-
+	player.createFromSongUrl("https://piapro.jp/t/N--x/20210204215604");
 	//その心に灯る色は
 	//player.createFromSongUrl("https://www.youtube.com/watch?v=bMtYf3R0zhY");
-
 	//Loading Memories
-	player.createFromSongUrl("https://www.youtube.com/watch?v=ZOTJgXBkJpc");
-	//player.createFromSongUrl("https://piapro.jp/t/N--x/20210204215604");
+	//player.createFromSongUrl("https://www.youtube.com/watch?v=ZOTJgXBkJpc");
 	//歌の欠片と
 	//player.createFromSongUrl("https://www.youtube.com/watch?v=CkIy0PdUGjk");
 
@@ -251,6 +249,8 @@ new P5((p5) => {
 		//let result = p5.createCanvas(window.innerWidth, window.innerHeight);
 		let result = p5.createCanvas(window.innerHeight, window.innerHeight);
 		result.parent("result");
+		let media = p5.select('#media');
+		media.position(0, 0);
 
     p5.textFont('Monoton');
     p5.rectMode(p5.CENTER);
@@ -427,8 +427,9 @@ new P5((p5) => {
 		for(const b of balls) {
 			b.drawMulti();
 		}
-    //g.displayPoint();
-    //drawGrid(p5, canvasW, canvasH);
+
+    g.displayPoint();
+    drawGrid(p5, canvasW, canvasH);
   };
 
 	p5.mousePressed = () => {
@@ -578,6 +579,9 @@ class AutoCamera {
 		console.log(this.distX+"  /  " +this.distY);
 		this.preX = this.x;
 		this.preY = this.y;
+		//this.preX = canvasW / 2;
+		//this.preY = canvasH / 2;
+
 		this.startTime = 0;
 		this.moveTime = 0;
 		this.stopTime = 0;

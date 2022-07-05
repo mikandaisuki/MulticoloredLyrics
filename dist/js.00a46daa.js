@@ -2410,10 +2410,10 @@ var animateChar = function animateChar(now, unit) {
 };
 
 function onAppReady(app) {
-  //その心に灯る色は
+  player.createFromSongUrl("https://piapro.jp/t/N--x/20210204215604"); //その心に灯る色は
   //player.createFromSongUrl("https://www.youtube.com/watch?v=bMtYf3R0zhY");
   //Loading Memories
-  player.createFromSongUrl("https://www.youtube.com/watch?v=ZOTJgXBkJpc"); //player.createFromSongUrl("https://piapro.jp/t/N--x/20210204215604");
+  //player.createFromSongUrl("https://www.youtube.com/watch?v=ZOTJgXBkJpc");
   //歌の欠片と
   //player.createFromSongUrl("https://www.youtube.com/watch?v=CkIy0PdUGjk");
   //player.createFromSongUrl("https://piapro.jp/t/RoPB/20220122172830");
@@ -2562,6 +2562,8 @@ new P5(function (p5) {
     //let result = p5.createCanvas(window.innerWidth, window.innerHeight);
     var result = p5.createCanvas(window.innerHeight, window.innerHeight);
     result.parent("result");
+    var media = p5.select('#media');
+    media.position(0, 0);
     p5.textFont('Monoton');
     p5.rectMode(p5.CENTER);
     p5.textAlign(p5.CENTER, p5.CENTER);
@@ -2803,14 +2805,15 @@ new P5(function (p5) {
         var _b = _step6.value;
 
         _b.drawMulti();
-      } //g.displayPoint();
-      //drawGrid(p5, canvasW, canvasH);
-
+      }
     } catch (err) {
       _iterator6.e(err);
     } finally {
       _iterator6.f();
     }
+
+    g.displayPoint();
+    (0, _drawGrid.drawGrid)(p5, canvasW, canvasH);
   };
 
   p5.mousePressed = function () {
@@ -3008,7 +3011,9 @@ var AutoCamera = /*#__PURE__*/function () {
     this.distSet();
     console.log(this.distX + "  /  " + this.distY);
     this.preX = this.x;
-    this.preY = this.y;
+    this.preY = this.y; //this.preX = canvasW / 2;
+    //this.preY = canvasH / 2;
+
     this.startTime = 0;
     this.moveTime = 0;
     this.stopTime = 0;
@@ -3149,7 +3154,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64579" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64992" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
