@@ -1,0 +1,12 @@
+{
+  "name": "hellojs",
+  "version": "1.0.0",
+  "description": "token: \"6rquYSfCRiWlgifb\"",
+  "main": "./js/index.js",
+  "scripts": {
+    "dev": "parcel index.html"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
