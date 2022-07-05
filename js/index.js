@@ -114,19 +114,23 @@ const animateChar = function (now, unit) {
 };
 
 function onAppReady(app){
-	player.createFromSongUrl("https://piapro.jp/t/N--x/20210204215604");
+	//Freedom!
+	//player.createFromSongUrl("https://piapro.jp/t/N--x/20210204215604");
 	//その心に灯る色は
 	//player.createFromSongUrl("https://www.youtube.com/watch?v=bMtYf3R0zhY");
 	//Loading Memories
 	//player.createFromSongUrl("https://www.youtube.com/watch?v=ZOTJgXBkJpc");
 	//歌の欠片と
 	//player.createFromSongUrl("https://www.youtube.com/watch?v=CkIy0PdUGjk");
-
-	//player.createFromSongUrl("https://piapro.jp/t/RoPB/20220122172830");
-	//player.createFromSongUrl("https://www.youtube.com/watch?v=ygY2qObZv24");
+	//青に溶けた風船
+	player.createFromSongUrl("https://piapro.jp/t/E7-m");
 	document.querySelector("#onAppReady").textContent = "準備完了";
+
 }
 
+document.querySelector("#onVideoReady").addEventListener("click", () => {
+	player.requestPlay();
+});
 /*
 let timer = null;
 function onTimerReady(timer) {
@@ -305,6 +309,7 @@ new P5((p5) => {
       init = true;
     }
 
+		//player.requestPause();
     p5.background(0);
 		const position = player.timer.position;
 
