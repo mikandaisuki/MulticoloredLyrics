@@ -2413,8 +2413,8 @@ function onAppReady(app) {
   //その心に灯る色は
   //player.createFromSongUrl("https://www.youtube.com/watch?v=bMtYf3R0zhY");
   //Loading Memories
-  //player.createFromSongUrl("https://www.youtube.com/watch?v=ZOTJgXBkJpc");
-  player.createFromSongUrl("https://piapro.jp/t/N--x/20210204215604"); //歌の欠片と
+  player.createFromSongUrl("https://www.youtube.com/watch?v=ZOTJgXBkJpc"); //player.createFromSongUrl("https://piapro.jp/t/N--x/20210204215604");
+  //歌の欠片と
   //player.createFromSongUrl("https://www.youtube.com/watch?v=CkIy0PdUGjk");
   //player.createFromSongUrl("https://piapro.jp/t/RoPB/20220122172830");
   //player.createFromSongUrl("https://www.youtube.com/watch?v=ygY2qObZv24");
@@ -3149,7 +3149,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65251" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64579" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

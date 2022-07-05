@@ -119,8 +119,8 @@ function onAppReady(app){
 	//player.createFromSongUrl("https://www.youtube.com/watch?v=bMtYf3R0zhY");
 
 	//Loading Memories
-	//player.createFromSongUrl("https://www.youtube.com/watch?v=ZOTJgXBkJpc");
-	player.createFromSongUrl("https://piapro.jp/t/N--x/20210204215604");
+	player.createFromSongUrl("https://www.youtube.com/watch?v=ZOTJgXBkJpc");
+	//player.createFromSongUrl("https://piapro.jp/t/N--x/20210204215604");
 	//歌の欠片と
 	//player.createFromSongUrl("https://www.youtube.com/watch?v=CkIy0PdUGjk");
 
