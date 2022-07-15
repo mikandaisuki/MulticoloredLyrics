@@ -1,2 +1,118 @@
+#result{
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.textalive-banner {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+#media {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: block;
+  z-index: -1;
+}
+
+#btnlist {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  margin: auto;
+}
+
+#List {
+  margin: auto;
+}
+
+canvas {
+  margin: auto;
+}
+
+ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+li {
+  margin-top: 3px;
+  margin-bottom: 3px;
+}
+
+
+.btn {
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  width: 100px;
+	height:80px;
+	font-size:25px;
+	color:#FFF;
+	font-weight: bold;
+	text-decoration:none;
+	box-sizing: border-box;
+	transition: 1s;
+	/*色替え部分*/
+  background: #CCC;
+	box-shadow: 0px 0px 0px 4px #3399FF;
+  z-index: 10;
+
+}
+
+#play {
+  font-size:40px;
+  background: #CCC;
+}
+
+#playing{
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+#Loaded {
+  opacity: 1;
+  background: #CCC;
+	box-shadow: 0px 0px 0px 0px #FFF;
+}
+
+.seekContainer {
+  margin-top: 650px;
+  justify-content: center;
+  align-items: center;
+  display: block;
+
+}
+#seek-bar {
+  width: 100%;
+  z-index: 20;
+}
+
 
 /*# sourceMappingURL=/HelloJS3.9ad09f98.css.map */

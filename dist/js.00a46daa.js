@@ -932,6 +932,7 @@ var Grid = /*#__PURE__*/function () {
       var _this = this;
 
       //console.log("this is testSearchGrid");
+      //console.log(text + ' / ' +sizelist);
       var allAngleArray = this.getAllAngleArray(sizelist);
       var reservedPos = new Array();
       var outerReserve = new Array();
@@ -1189,8 +1190,8 @@ var Grid = /*#__PURE__*/function () {
         }
 
         var result = {
-          sizeX: sizeX,
-          sizeY: sizeY
+          sizeX: sizeX + 1,
+          sizeY: sizeY + 1
         };
         return result;
       };
@@ -1285,9 +1286,9 @@ var SizingBlock = /*#__PURE__*/function () {
     this.posX = 0;
     this.posY = 0;
     this.calcPos();
-    this.alpha = 0;
-    this.col = col; //this.col = this.p.color(255, 0, 0, this.alpha);
+    this.alpha = 0; //this.col = col;
 
+    this.col = p.color(0, 0, 100);
     this.dir = dir;
     this.parent = parent;
     this.startTime = charOb.startTime;
@@ -1340,7 +1341,9 @@ var SizingBlock = /*#__PURE__*/function () {
     this.size_chorus = 0;
     this.alpha_chorus = 0;
     this.col_chorus = p.color(100, 0, 100);
-    this.col_chorusOut = p.color(Math.floor(Math.random() * 100), 100, 100);
+    this.col_chorusOut = p.color(Math.floor(Math.random() * 100), 100, 100); //console.log("ブロックpos : " + this.posX + " / "+ this.posY);
+
+    this.isVanished = false;
   }
 
   _createClass(SizingBlock, [{
@@ -1349,8 +1352,9 @@ var SizingBlock = /*#__PURE__*/function () {
       var p = this.p;
       var progress = 1 - (this.startTime - position) / _index.time_fadein;
       var eased = Ease.quintIn(progress);
-      this.alpha = 100 * eased;
-      this.col = p.color(255, 0, 0, this.alpha);
+      this.alpha = 100 * eased; //this.col = p.color(255, 0, 0, this.alpha);
+
+      this.col.setAlpha(this.alpha);
       var r = 90 * eased;
       r = p.constrain(r, 0, 90);
       var a = this.preAngle + r;
@@ -1371,7 +1375,7 @@ var SizingBlock = /*#__PURE__*/function () {
       p.translate(this.posX, this.posY);
       p.rotate(this.rad);
       p.noStroke();
-      p.fill(p.color(255, 0, 255, this.alpha));
+      p.fill(this.col);
       p.text(this.char, 0, 0);
       p.pop(); //this.isDisplayed = true;
     }
@@ -1532,6 +1536,19 @@ var SizingBlock = /*#__PURE__*/function () {
     key: "_posY_chorus",
     get: function get() {
       return this.posY_chorus;
+    }
+  }, {
+    key: "_isVanished",
+    get: function get() {
+      return this.isVanished;
+    },
+    set: function set(bool) {
+      this.isVanished = bool;
+    }
+  }, {
+    key: "_col",
+    set: function set(col) {
+      this.col = col;
     }
   }]);
 
@@ -1968,6 +1985,11 @@ var WordBlock = /*#__PURE__*/function () {
     get: function get() {
       return this.endTime;
     }
+  }, {
+    key: "_dir",
+    get: function get() {
+      return this.dir;
+    }
   }]);
 
   return WordBlock;
@@ -2006,8 +2028,8 @@ var PhraseBlock = /*#__PURE__*/function () {
     this.wordObArray = new Array();
     this.textArr = new Array();
     this.setArrByPartOfSpeech(phrase);
-    if (this.phrase.text.includes('、') || this.phrase.text.includes('。') || this.phrase.text.includes('？')) this.setArrByPunct();
-    if (this.phrase.text.includes('(')) this.setArrByText();
+    if (this.phrase.text.includes('、') || this.phrase.text.includes('。') || this.phrase.text.includes('？') || this.phrase.text.includes('！') || this.phrase.text.includes('!')) this.setArrByPunct();
+    if (this.phrase.text.includes('(') || this.phrase.text.includes('「') || this.phrase.text.includes('『')) this.setArrByText();
     if (this.textArr.length != this.wordObArray.length) console.log("要素数違うお！");
     this.phraseleng = this.textArr.length;
     this.wordBlocks = new Array(this.phraseleng);
@@ -2077,7 +2099,7 @@ var PhraseBlock = /*#__PURE__*/function () {
           w.push(word); //wordオブジェクトを配列にする
           //助詞(P),助動詞(M)のとき前の要素に追加
 
-          if (word.pos === 'P' || word.pos === 'M') {
+          if (wordObArray[i - 1] && word.pos === 'P' || wordObArray[i - 1] && word.pos === 'M' || text === '...') {
             textArray[i - 1] += text;
             wordObArray[i - 1].push(word); //連体詞(A)のとき後ろの要素に追加
           } else if (word.pos === 'A') {
@@ -2108,7 +2130,7 @@ var PhraseBlock = /*#__PURE__*/function () {
       var tmpOb = new Array();
 
       for (var i = 0; i < textA.length; i++) {
-        if (textA[i].includes('、') || textA[i].includes('。') || textA[i].includes('？')) {
+        if (textA[i].includes('、') || textA[i].includes('。') || textA[i].includes('？') || textA[i].includes('！') || textA[i].includes('!')) {
           var _tmpText = textA[i];
           var _tmpOb = obA[i];
           textA.splice(i, 1);
@@ -2148,7 +2170,7 @@ var PhraseBlock = /*#__PURE__*/function () {
       var no;
 
       for (var i = 0; i < textA.length; i++) {
-        if (textA[i].includes('(')) {
+        if (textA[i].includes('(') || textA[i].includes('「') || textA[i].includes('『')) {
           isStart = true;
           startIndex = i;
           endIndex = i;
@@ -2171,7 +2193,7 @@ var PhraseBlock = /*#__PURE__*/function () {
             _iterator4.f();
           }
 
-          if (textA[i].includes(')')) {
+          if (textA[i].includes(')') || textA[i].includes('」') || textA[i].includes('』')) {
             textA.splice(startIndex, endIndex);
             obA.splice(startIndex, endIndex);
             textA.push(tmpText);
@@ -2221,6 +2243,9 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
+var _TextAliveApp = TextAliveApp,
+    Ease = _TextAliveApp.Ease;
+
 var Ball = /*#__PURE__*/function () {
   function Ball(p, x, y) {
     _classCallCheck(this, Ball);
@@ -2229,25 +2254,30 @@ var Ball = /*#__PURE__*/function () {
     this.posX = x;
     this.posY = y;
     this.size = p.random(400, 800);
-    var h = p.random(100);
-    var s = p.random(70, 100);
-    var b = p.random(80, 100);
-    this.col = p.color(h, s, b);
+    this.h = p.random(100);
+    this.s = p.random(70, 100);
+    this.b = p.random(80, 100);
+    this.col = p.color(this.h, this.s, this.b);
     this.col.setAlpha(p.random(p.random(100)));
-    this.num = 5;
+    this.num = 3;
     this.posXarray = [];
     this.posYarray = [];
     this.sizeArray = [];
 
     for (var i = 0; i < this.num; i++) {
-      this.posXarray.push(p.randomGaussian(this.posX, 300));
-      this.posYarray.push(p.randomGaussian(this.posY, 300)); //this.sizeArray.push(p.random(400, 800));
-
+      this.posXarray.push(p.randomGaussian(this.posX, 400));
+      this.posYarray.push(p.randomGaussian(this.posY, 400));
       this.sizeArray.push(p.random(100, 300));
     }
   }
 
   _createClass(Ball, [{
+    key: "update",
+    value: function update(beatProgress) {
+      var alpha = this.b + 100 * Ease.quintIn(beatProgress);
+      this.col = this.p.color(this.h, this.s, alpha);
+    }
+  }, {
     key: "draw",
     value: function draw() {
       this.p.push();
@@ -2275,6 +2305,88 @@ var Ball = /*#__PURE__*/function () {
 }();
 
 exports.Ball = Ball;
+},{}],"js/SONG.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.SONG = void 0;
+var SONG = {
+  "Loading Memories / せきこみごはん feat. 初音ミク": {
+    "songUrl": "https://piapro.jp/t/RoPB/20220122172830",
+    "video": {
+      "beatId": 4086301,
+      "chordId": 2221797,
+      "repetitiveSegmentId": 2247682,
+      "lyricId": 53718,
+      "lyricDiffId": 7076
+    },
+    "title": "Loading Memories",
+    "artist": "せきこみごはん feat. 初音ミク"
+  },
+  "青に溶けた風船 / シアン・キノ feat. 初音ミク": {
+    "songUrl": "https://piapro.jp/t/9cSd/20220205030039",
+    "video": {
+      "beatId": 4083452,
+      "chordId": 2221996,
+      "repetitiveSegmentId": 2247861,
+      "lyricId": 53745,
+      "lyricDiffId": 7080
+    },
+    "title": "青に溶けた風船",
+    "artist": "シアン・キノ feat. 初音ミク"
+  },
+  "歌の欠片と / imo feat. MEIKO": {
+    "songUrl": "https://piapro.jp/t/Yvi-/20220207132910",
+    "video": {
+      "beatId": 4086832,
+      "chordId": 2222074,
+      "repetitiveSegmentId": 2247935,
+      "lyricId": 53746,
+      "lyricDiffId": 7082
+    },
+    "title": "歌の欠片と",
+    "artist": "imo feat. MEIKO"
+  },
+  "未完のストーリー / 加賀（ネギシャワーP） feat. 初音ミク": {
+    "songUrl": "https://piapro.jp/t/ehtN/20220207101534",
+    "video": {
+      "beatId": 4083459,
+      "chordId": 2222147,
+      "repetitiveSegmentId": 2248008,
+      "lyricId": 53747,
+      "lyricDiffId": 7083
+    },
+    "title": "未完のストーリー",
+    "artist": "加賀（ネギシャワーP） feat. 初音ミク"
+  },
+  "みはるかす / ねこむら（cat nap） feat. 初音ミク": {
+    "songUrl": "https://piapro.jp/t/QtjE/20220207164031",
+    "video": {
+      "beatId": 4083470,
+      "chordId": 2222187,
+      "repetitiveSegmentId": 2248075,
+      "lyricId": 53748,
+      "lyricDiffId": 7084
+    },
+    "title": "みはるかす",
+    "artist": "ねこむら（cat nap） feat. 初音ミク"
+  },
+  "fear / 201 feat. 初音ミク": {
+    "songUrl": "https://piapro.jp/t/GqT2/20220129182012",
+    "video": {
+      "beatId": 4083475,
+      "chordId": 2222294,
+      "repetitiveSegmentId": 2248170,
+      "lyricId": 53749,
+      "lyricDiffId": 7085
+    },
+    "title": "fear",
+    "artist": "201 feat. 初音ミク"
+  }
+};
+exports.SONG = SONG;
 },{}],"js/index.js":[function(require,module,exports) {
 "use strict";
 
@@ -2295,6 +2407,8 @@ var _PhraseBlock = require("./PhraseBlock");
 
 var _Ball = require("./Ball");
 
+var _SONG = require("./SONG");
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -2311,14 +2425,21 @@ var P5 = p5;
 var _TextAliveApp = TextAliveApp,
     Player = _TextAliveApp.Player,
     Ease = _TextAliveApp.Ease;
+console.log(_SONG.SONG);
 var text;
+var isAppReady = false;
+var init = false;
+var isVideoReady = false;
+var videoEndTime;
+var isTimerReady = false; //const seekBar = document.querySelector("#seek-bar");
+
 var player = new Player({
   app: {
     token: "6rquYSfCRiWlgifb"
   },
   // 読み込むフォントを指定する。nullだとすべて読み込む。
   //fontFamilies: null,
-  mediaBannerPosition: "buttom right",
+  //mediaBannerPosition: "bottom right",
   // 音源メディアを指定する。
   mediaElement: document.querySelector("#media"),
   // throttleアップデート関数の発行間隔をしていする。ミリセカンド。
@@ -2339,7 +2460,8 @@ var player = new Player({
 player.addListener({
   // PlayerEventListenerのイベントリスナ
   // https://developer.textalive.jp/packages/textalive-app-api/interfaces/playereventlistener.html
-  //onDispose, 				// プレイヤーが破棄されるとき
+  onDispose: onDispose,
+  // プレイヤーが破棄されるとき
   //onMediaElementSet,	 	// 音源メディアが変更されたとき(配属先のDOM要素が変更されたとき)
   //onMediaSeek,			// 再生中の楽曲の再生位置が変更されたとき
   //onPause,				// 再生中の楽曲が一時停止されたとき
@@ -2350,11 +2472,13 @@ player.addListener({
   //onThrottledTimeUpdate,	// 動画の再生位置が変更されたときに呼ばれる（あまりに頻繁な発火を防ぐため一定間隔に間引かれる）、間隔時間はPlayerクラスのオプションで設定可能。
   onTimeUpdate: onTimeUpdate,
   // 動画の再生位置が変更されたときに呼ばれる
-  //onTimerReady,			// 動画のためのTimerの準備が整ったとき
+  onTimerReady: onTimerReady,
+  // 動画のためのTimerの準備が整ったとき
   onVideoReady: onVideoReady,
   // 動画オブジェクトの準備が整ったとき
   //onVideoSeek,			// 動画のシーク操作が行われたとき
-  //onVideoSeekEnd,			// 動画のシーク操作が終わったとき
+  onVideoSeekEnd: onVideoSeekEnd,
+  // 動画のシーク操作が終わったとき
   //onVideoSeekStart,		// 動画のシーク操作が始まったとき
   //onVolumeUpdate,			// 音量が変更されたとき
   // PlayerAppListenerのイベントリスナ
@@ -2388,49 +2512,73 @@ player.addListener({
 }); // アニメーション関数の定義、フレーズ、単語、文字
 // フレーズが発声されていたら #text_phrase に表示する
 
-var animatePhrase = function animatePhrase(now, unit) {
-  if (unit.contains(now)) {
-    document.querySelector("#text_phrase").textContent = unit.text;
+/*
+const animatePhrase = function (now, unit) {
+	if (unit.contains(now)) {
+		document.querySelector("#text_phrase").textContent = unit.text;
     text = unit.text;
-  }
-}; // 単語が発声されていたら #text_word に表示する
-
-
-var animateWord = function animateWord(now, unit) {
-  if (unit.contains(now)) {
-    document.querySelector("#text_word").textContent = unit.text;
-  }
-}; // 文字が発声されていたら #text_char に表示する
-
-
-var animateChar = function animateChar(now, unit) {
-  if (unit.contains(now)) {
-    document.querySelector("#text_char").textContent = unit.text;
-  }
+	}
 };
 
-function onAppReady(app) {
-  //Freedom!
-  //player.createFromSongUrl("https://piapro.jp/t/N--x/20210204215604");
-  //その心に灯る色は
-  //player.createFromSongUrl("https://www.youtube.com/watch?v=bMtYf3R0zhY");
-  //Loading Memories
-  //player.createFromSongUrl("https://www.youtube.com/watch?v=ZOTJgXBkJpc");
-  //歌の欠片と
-  //player.createFromSongUrl("https://www.youtube.com/watch?v=CkIy0PdUGjk");
-  //青に溶けた風船
-  player.createFromSongUrl("https://piapro.jp/t/E7-m");
-  document.querySelector("#onAppReady").textContent = "準備完了";
+// 単語が発声されていたら #text_word に表示する
+const animateWord = function (now, unit) {
+	if (unit.contains(now)) {
+		document.querySelector("#text_word").textContent = unit.text;
+	}
+};
+
+// 文字が発声されていたら #text_char に表示する
+const animateChar = function (now, unit) {
+	if (unit.contains(now)) {
+		document.querySelector("#text_char").textContent = unit.text;
+	}
+};
+*/
+
+function onVideoSeekEnd() {
+  console.log("シーク終了");
 }
 
-document.querySelector("#onVideoReady").addEventListener("click", function () {
-  player.requestPlay();
+function onTimerReady() {
+  console.log("タイマー準備寛容");
+  isTimerReady = true;
+}
+
+function onDispose() {
+  console.log("でぃすぽーずされますた");
+}
+
+function onAppReady(app) {
+  isAppReady = true; //Loading Memories
+  //player.createFromSongUrl("https://www.youtube.com/watch?v=ZOTJgXBkJpc");
+  //"https://piapro.jp/t/RoPB/20220122172830"
+  //青に溶けた風船
+  //player.createFromSongUrl("https://piapro.jp/t/9cSd/20220205030039");
+  //歌の欠片と
+  //player.createFromSongUrl("https://www.youtube.com/watch?v=CkIy0PdUGjk");
+  //"https://piapro.jp/t/Yvi-/20220207132910"
+  //未完のストーリー
+  //player.createFromSongUrl("https://piapro.jp/t/ehtN/20220207101534");
+  //みはるかす
+  //player.createFromSongUrl("https://www.youtube.com/watch?v=qVTavYjd9Ek");
+  //"https://piapro.jp/t/QtjE/20220207164031"
+  //fear
+  //player.createFromSongUrl("https://www.youtube.com/watch?v=ZK2rp1VdNy4");
+  //"https://piapro.jp/t/GqT2/20220129182012"
+  //document.querySelector("#onAppReady").textContent = "準備完了";
+}
+/*
+document.querySelector("#onVideoReady").addEventListener("click", () => {
+	player.requestPlay();
 });
+*/
+
 /*
 let timer = null;
 function onTimerReady(timer) {
 }
 */
+
 
 var phrases = null;
 var sabi = null;
@@ -2441,8 +2589,10 @@ var chorus = null; // 動画データが読み込まれたとき
 exports.chorus = chorus;
 
 function onVideoReady(v) {
+  videoEndTime = player.data.song.length * 1000;
   phrases = player.video.phrases;
-  songInfo = player.data.songMap.segments; // サビ情報を読み取る
+  songInfo = player.data.songMap.segments;
+  console.log(songInfo); // サビ情報を読み取る
 
   var segments_contenst = ""; // for文でarrayをすべてたどる
   // https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Statements/for...of
@@ -2453,9 +2603,8 @@ function onVideoReady(v) {
   try {
     for (_iterator.s(); !(_step = _iterator.n()).done;) {
       var element = _step.value;
-      segments_contenst = segments_contenst + String(element.chorus) + "(" + String(element.duration) + " [ms]), ";
-      console.log("セグメント情報");
-      console.log(element);
+      segments_contenst = segments_contenst + String(element.chorus) + "(" + String(element.duration) + " [ms]), "; //console.log("セグメント情報");
+      //console.log(element);
 
       if (element.chorus) {
         sabi = element;
@@ -2468,44 +2617,46 @@ function onVideoReady(v) {
     _iterator.f();
   }
 
-  document.querySelector("#segments").textContent = segments_contenst;
-  document.querySelector("#song_name").textContent = player.data.song.name;
-  document.querySelector("#song_permalink").textContent = player.data.song.permalink;
-  document.querySelector("#song_artist").textContent = player.data.song.artist.name; // 定期的に呼ばれる各フレーズの "animate" 関数をセットする
+  console.log("れあでぃ");
+  isVideoReady = true;
+  /*
+  	document.querySelector("#segments").textContent = segments_contenst;
+  	document.querySelector("#song_name").textContent = player.data.song.name;
+  	document.querySelector("#song_permalink").textContent = player.data.song.permalink;
+  	document.querySelector("#song_artist").textContent = player.data.song.artist.name;
+  */
+  // 定期的に呼ばれる各フレーズの "animate" 関数をセットする
 
-  var w; // Set "animate" function
-
-  w = player.video.firstPhrase;
-
-  while (w) {
-    w.animate = animatePhrase;
-    w = w.next;
-  } // 定期的に呼ばれる各単語の "animate" 関数をセットする
+  /*
+  let w;
   // Set "animate" function
-
-
-  w = player.video.firstWord;
-
-  while (w) {
-    w.animate = animateWord;
-    w = w.next;
-  } // 定期的に呼ばれる各文字の "animate" 関数をセットする
-  // Set "animate" function
-
-
-  w = player.video.firstChar;
-
-  while (w) {
-    w.animate = animateChar;
-    w = w.next;
-  }
-
-  document.querySelector("#onVideoReady").textContent = "準備完了";
+   	w = player.video.firstPhrase;
+   	while (w) {
+     	w.animate = animatePhrase;
+     	w = w.next;
+   	}
+  // 定期的に呼ばれる各単語の "animate" 関数をセットする
+   	// Set "animate" function
+   	w = player.video.firstWord;
+   	while (w) {
+     	w.animate = animateWord;
+     	w = w.next;
+   	}
+  // 定期的に呼ばれる各文字の "animate" 関数をセットする
+   	// Set "animate" function
+   	w = player.video.firstChar;
+   	while (w) {
+     	w.animate = animateChar;
+     	w = w.next;
+   	}
+  	*/
+  //document.querySelector("#onVideoReady").textContent = "準備完了";
 } // 楽曲の再生位置が更新されたときに呼び出される。（再生中常に呼び出される）
 // index.htmlの各変数を随時更新する。
 
 
 function onTimeUpdate(position) {
+  /*
   document.querySelector("#position").textContent = position;
   document.querySelector("#beat_index").textContent = player.findBeat(position).index;
   document.querySelector("#beat_duration").textContent = player.findBeat(position).duration;
@@ -2519,18 +2670,155 @@ function onTimeUpdate(position) {
   document.querySelector("#phrase").textContent = player.video.findPhrase(position).text;
   document.querySelector("#word").textContent = player.video.findWord(position).text;
   document.querySelector("#char").textContent = player.video.findChar(position).text;
+  */
 }
 
 var canvasW = 4000;
 exports.canvasW = canvasW;
 var canvasH = 4000;
 exports.canvasH = canvasH;
+var cameraSize = Math.min(window.innerWidth, window.innerHeight);
 var globalBlockSize = 100;
 exports.globalBlockSize = globalBlockSize;
 var time_fadein = 100;
 exports.time_fadein = time_fadein;
 var time_fadeout = 100;
 exports.time_fadeout = time_fadeout;
+var selectedSong;
+
+var getPrelude = function getPrelude(phrases) {
+  var thTime = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 3000;
+
+  if (phrases[0].startTime > thTime) {
+    return {
+      'startTime': 0,
+      'endTime': phrases[0].startTime - 1
+    };
+  }
+};
+
+var getInterludes = function getInterludes(phrases) {
+  var thTime = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 3000;
+  var index = 0;
+  var result = [];
+
+  for (var i = 0; i < phrases.length - 1; i++) {
+    if (phrases[i + 1].startTime - phrases[i].endTime > thTime) {
+      result.push({
+        'startTime': phrases[i].endTime + 1,
+        'endTime': phrases[i + 1].startTime - 1
+      });
+      index++;
+    }
+  }
+
+  return result;
+};
+
+var getPostlude = function getPostlude(charBlock) {
+  var thTime = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 3000;
+
+  if (videoEndTime - charBlock.slice(-1)[0]._endTime > thTime) {
+    return {
+      'startTime': charBlock.slice(-1)[0]._endTime + 1,
+      'endTime': videoEndTime
+    };
+  }
+};
+
+var findInterlude = function findInterlude(position, interludes) {
+  var _iterator2 = _createForOfIteratorHelper(interludes),
+      _step2;
+
+  try {
+    for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+      var i = _step2.value;
+      if (i['startTime'] <= position && position <= i['endTime']) return i;
+    }
+  } catch (err) {
+    _iterator2.e(err);
+  } finally {
+    _iterator2.f();
+  }
+
+  return false;
+};
+
+var getDisplayedWords = function getDisplayedWords(position, wordBlocks) {
+  var words = [];
+
+  var _iterator3 = _createForOfIteratorHelper(wordBlocks),
+      _step3;
+
+  try {
+    for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+      var w = _step3.value;
+
+      if (w.startTime <= position) {
+        words.push(w);
+      }
+    }
+  } catch (err) {
+    _iterator3.e(err);
+  } finally {
+    _iterator3.f();
+  }
+
+  return words;
+};
+
+var bgChange = function bgChange(p5, position, endTime) {
+  var duration = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1000;
+  var col = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : p5.color(60, 85, 100);
+  var rectWidth = p5.width / 5;
+  var moveTime = Math.min(1, p5.map(endTime - position, duration, 0, 0, 1)); //console.log("rectWidth : " +rectWidth + " moveTime : "+moveTime);
+
+  p5.noStroke();
+  p5.fill(col);
+
+  if (moveTime < 1) {
+    for (var i = 0; i < 5; i++) {
+      p5.rect(i * rectWidth + rectWidth / 2, p5.height / 2, rectWidth * Ease.quartIn(moveTime), p5.height);
+    }
+  }
+
+  return moveTime;
+};
+
+var bgChange2 = function bgChange2(p5, position, endTime) {
+  var duration = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1000;
+  var col = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : p5.color(60, 85, 100);
+  var circleNum = 6;
+  var size = p5.width / 5;
+  var moveTime = Math.min(1, p5.map(endTime - position, duration, 0, 0, 1));
+  p5.noStroke();
+  p5.fill(col);
+
+  for (var y = 0; y < circleNum; y++) {
+    for (var x = 0; x < circleNum; x++) {
+      p5.circle(x * size, y * size, size * 2 * Ease.sineOut(moveTime));
+    }
+  }
+};
+/*
+const postludeProcess = (p5, position, charBlock, duration = 3000) => {
+	const endTime = videoEndTime - duration;
+	const vanishCount = Math.min(charBlock.length, p5.map(endTime - position, duration, 0, 0, charBlock.length));
+	//if(vanishCount == charBlock.length)
+	for(let i = 0; i < vanishCount; i++) {
+		while(true) {
+			const index = Math.floor(Math.random() * charBlock.length);
+			if(!vanishedIndex.includes(index)) {
+				charBlock[index]._isDisplayed = false;
+				vanishedIndex.push(index);
+				break;
+			}
+		}
+	}
+}
+*/
+
+
 new P5(function (p5) {
   var u = 100;
   var centerx = 300;
@@ -2540,7 +2828,6 @@ new P5(function (p5) {
   var b;
   var b2;
   var g;
-  var init;
   var phraseBlocks;
   var testBlocks;
   var worldCamera;
@@ -2555,93 +2842,257 @@ new P5(function (p5) {
     sizeX: 0,
     sizeY: 0
   };
-  var wordBlocks = new Array();
+  var wordBlocks;
+  var charBlocks;
   var yarimasuta = true;
   var balls = new Array();
+  var songlist = [{
+    artist: 'せきこみごはん',
+    song: 'Loading Memories'
+  }, {
+    artist: 'シアン・キノ',
+    song: '青に溶けた風船'
+  }, {
+    artist: 'IMO',
+    song: '歌の欠片と'
+  }, {
+    artist: '加賀(ネギシャワーP)',
+    song: '未完のストーリー'
+  }, {
+    artist: 'cat nap',
+    song: 'みはるかす'
+  }, {
+    artist: '201',
+    song: 'fear'
+  }];
+  var prelude;
+  var isPrelude = false;
+  var interludes;
+  var interlude;
+  var isInterlude = false;
+  var postlude;
+  var isPostlude = false;
+  var bgColor;
+  var textColor;
+  var bgChangeTime = {
+    endTime: 5000
+  };
+  var vanishedIndex = [];
+  var allDisplayedSize;
 
   p5.preload = function () {//myFont = p5.loadFont('./assets/MPLUSRounded1c-Light.ttf');
   };
 
   p5.setup = function () {
     //let result = p5.createCanvas(window.innerWidth, window.innerHeight);
-    var result = p5.createCanvas(window.innerHeight, window.innerHeight);
-    result.parent("result");
-    var media = p5.select('#media');
-    media.position(0, 0);
+    var result = p5.createCanvas(cameraSize, cameraSize);
+    result.parent("result"); //create select song element
+
+    var btnlist = p5.createDiv("\n      <ul id=\"List\" class=\"list\">\n        <li class=\"item\">\n          <a id=\"LoadingMemories\", class=\"btn btn-gradient\"><span>LoadingMemories</span></a>\n        </li>\n        <li class=\"item\">\n          <a id=\"\u9752\u306B\u6EB6\u3051\u305F\u98A8\u8239\", class=\"btn btn-gradient\"><span>\u9752\u306B\u6EB6\u3051\u305F\u98A8\u8239</span></a>\n        </li>\n        <li class=\"item\">\n          <a id=\"\u6B4C\u306E\u6B20\u7247\u3068\", class=\"btn btn-gradient\"><span>\u6B4C\u306E\u6B20\u7247\u3068</span></a>\n        </li>\n        <li class=\"item\">\n          <a id=\"\u672A\u5B8C\u306E\u30B9\u30C8\u30FC\u30EA\u30FC\", class=\"btn btn-gradient\"><span>\u672A\u5B8C\u306E\u30B9\u30C8\u30FC\u30EA\u30FC</span></a>\n        </li>\n        <li class=\"item\">\n          <a id=\"\u307F\u306F\u308B\u304B\u3059\", class=\"btn btn-gradient\"><span>\u307F\u306F\u308B\u304B\u3059</span></a>\n        </li>\n        <li class=\"item\">\n          <a id=\"fear\", class=\"btn btn-gradient\"><span>fear</span></a>\n        </li>\n\n        <li class=\"item\">\n          <a id=\"play\", class=\"btn\"><span>Plese Select Song</span></a>\n        </li>\n      </ul>\n    ");
+    btnlist.id('btnlist');
+    btnlist = document.getElementById("btnlist");
+    var btn1 = document.getElementById("LoadingMemories");
+    var btn2 = document.getElementById("青に溶けた風船");
+    var btn3 = document.getElementById("歌の欠片と");
+    var btn4 = document.getElementById("未完のストーリー");
+    var btn5 = document.getElementById("みはるかす");
+    var btn6 = document.getElementById("fear");
+    var playBtn = document.getElementById("play");
+    var playText = playBtn.children[0];
+    var bs = document.getElementsByClassName("btn-gradient");
+
+    var _iterator4 = _createForOfIteratorHelper(bs),
+        _step4;
+
+    try {
+      for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+        var _b2 = _step4.value;
+        _b2.style.width = cameraSize - 100;
+      }
+    } catch (err) {
+      _iterator4.e(err);
+    } finally {
+      _iterator4.f();
+    }
+
+    playBtn.style.width = cameraSize - 100;
+    console.log(bs);
+
+    var changeElement = function changeElement(element, text) {
+      playBtn.style.backgroundColor = '#3333FF';
+      playBtn.style.boxShadow = '0px 0px 0px 4px #FF0099';
+      playText.textContent = "PLAY";
+
+      var _iterator5 = _createForOfIteratorHelper(bs),
+          _step5;
+
+      try {
+        for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
+          var _b = _step5.value;
+          _b.style.backgroundColor = '#CCC';
+        }
+      } catch (err) {
+        _iterator5.e(err);
+      } finally {
+        _iterator5.f();
+      }
+
+      element.style.backgroundColor = '#3399FF';
+      element.style.boxShadow = '0px 0px 0px 4px #3399FF';
+    };
+
+    btn1.addEventListener('click', function () {
+      console.log("LoadingMemories");
+      selectedSong = _SONG.SONG["Loading Memories / せきこみごはん feat. 初音ミク"];
+      changeElement(btn1, "LoadingMemories");
+    });
+    btn2.addEventListener('click', function () {
+      console.log("青に溶けた風船");
+      selectedSong = _SONG.SONG["青に溶けた風船 / シアン・キノ feat. 初音ミク"];
+      changeElement(btn2, "青に溶けた風船");
+    });
+    btn3.addEventListener('click', function () {
+      console.log("歌の欠片と");
+      selectedSong = _SONG.SONG["歌の欠片と / imo feat. MEIKO"];
+      changeElement(btn3, "歌の欠片と");
+    });
+    btn4.addEventListener('click', function () {
+      console.log("未完のストーリー");
+      selectedSong = _SONG.SONG["未完のストーリー / 加賀（ネギシャワーP） feat. 初音ミク"];
+      changeElement(btn4, "未完のストーリー");
+    });
+    btn5.addEventListener('click', function () {
+      console.log("みはるかす");
+      selectedSong = _SONG.SONG["みはるかす / ねこむら（cat nap） feat. 初音ミク"];
+      changeElement(btn5, "みはるかす");
+    });
+    btn6.addEventListener('click', function () {
+      console.log("fear");
+      selectedSong = _SONG.SONG["fear / 201 feat. 初音ミク"];
+      changeElement(btn6, "fear");
+    });
+    playBtn.addEventListener('click', function () {
+      console.log("PLAY"); //if(player.isPlaying || player.timer.isPlaying) return;
+
+      if (selectedSong) {
+        player.createFromSongUrl(selectedSong.songUrl, {
+          video: selectedSong.video
+        });
+        /*
+        if(!init || !isTimerReady || player.isLoading) {
+        	playText.textContent = "Now Loading...";
+        	return;
+        }
+        if(isTimerReady && !player.isPlaying && !player.timer.isPlaying) {
+        	//player.timer.initialize();
+        	player.video && player.requestPlay();
+        }
+        */
+
+        btnlist.remove();
+        var playing = p5.createDiv("\n\t\t\t\t\t<ul id=\"List\" class=\"list\">\n\t\t\t\t\t\t<li class=\"item\">\n\t\t\t\t\t\t\t<a id=\"Loaded\", class=\"btn btn-gradient\"><span>Start!</span></a>\n\t\t\t\t\t\t</li>\n\t\t\t\t\t</ul>\n\t\t\t\t");
+        playing.id('playing');
+        var playingBtn = document.getElementById("Loaded");
+        playingBtn.style.width = cameraSize;
+        playingBtn.addEventListener('click', function () {
+          console.log("おされたんご");
+
+          if (init && player.video && player.timer && isTimerReady) {
+            player.requestPlay();
+            playing.remove();
+          }
+        });
+      } else {
+        playText.textContent = "選べカス";
+      }
+    });
+    /*
+    seekBar.addEventListener("change", (e) => {
+        player.video && player.requestMediaSeek(e.target.value);
+      });
+    */
+    //-------------------------------------------
+
     p5.textFont('Monoton');
     p5.rectMode(p5.CENTER);
     p5.textAlign(p5.CENTER, p5.CENTER);
     p5.colorMode(p5.HSB, 100);
-    p5.frameRate(24);
-    worldCamera = new Camera(p5, canvasW, canvasH);
-    g = new _Grid.Grid(p5, canvasW, canvasH);
-    init = false; //console.log(songInfo);
+    p5.frameRate(60);
+    worldCamera = new Camera(p5, canvasW, canvasH); //g = new Grid(p5, canvasW, canvasH);
+
+    init = false;
   };
 
   p5.draw = function () {
     //console.log("now drawing");
     if (!player || !player.video || !player.timer) {
+      //console.log("ぷれいやー準備できてへん");
       return;
-    } else if (!init) {
+    } else if (!init && isVideoReady) {
       console.log("---------Start initial draw------------");
+      g = new _Grid.Grid(p5, canvasW, canvasH);
       phraseBlocks = new Array(phrases.length);
+      wordBlocks = new Array();
       var cou = 0;
       var i = 0;
       var test = new Array();
 
       for (var _cou = 0; _cou < phrases.length; _cou++) {
         test.push(phrases[_cou]);
-      }
+      } //console.log("あああああああああああ");
+      //console.log(test);
+
 
       testBlocks = new Array(test.length);
 
       for (var _i = 0, _test = test; _i < _test.length; _i++) {
         var p = _test[_i];
+        //console.log(p);
         testBlocks[i] = new _PhraseBlock.PhraseBlock(p5, g, p);
         i++;
       }
 
       var blocks = new Array(); //const wordBlocks = new Array();
 
-      var _iterator2 = _createForOfIteratorHelper(testBlocks),
-          _step2;
+      var _iterator6 = _createForOfIteratorHelper(testBlocks),
+          _step6;
 
       try {
-        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-          var phrase = _step2.value;
+        for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
+          var phrase = _step6.value;
 
-          var _iterator3 = _createForOfIteratorHelper(phrase._wordBlocks),
-              _step3;
+          var _iterator7 = _createForOfIteratorHelper(phrase._wordBlocks),
+              _step7;
 
           try {
-            for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-              var word = _step3.value;
+            for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
+              var word = _step7.value;
               wordBlocks.push(word);
 
-              var _iterator4 = _createForOfIteratorHelper(word._blocks),
-                  _step4;
+              var _iterator8 = _createForOfIteratorHelper(word._blocks),
+                  _step8;
 
               try {
-                for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
-                  var char = _step4.value;
+                for (_iterator8.s(); !(_step8 = _iterator8.n()).done;) {
+                  var char = _step8.value;
                   blocks.push(char);
                 }
               } catch (err) {
-                _iterator4.e(err);
+                _iterator8.e(err);
               } finally {
-                _iterator4.f();
+                _iterator8.f();
               }
             }
           } catch (err) {
-            _iterator3.e(err);
+            _iterator7.e(err);
           } finally {
-            _iterator3.f();
+            _iterator7.f();
           }
         }
       } catch (err) {
-        _iterator2.e(err);
+        _iterator6.e(err);
       } finally {
-        _iterator2.f();
+        _iterator6.f();
       }
 
       console.log(wordBlocks);
@@ -2650,23 +3101,94 @@ new P5(function (p5) {
       console.log("-----------End initial draw------------");
       chorusList = sabi.segments;
       currentChorus = chorusList[chorusIndex];
+      prelude = getPrelude(phrases);
+      interludes = getInterludes(phrases);
+      postlude = getPostlude(blocks);
+      console.log(prelude);
+      console.log("間奏情報");
+      console.log(interludes);
+      console.log(postlude);
+      bgColor = p5.color(0);
+      textColor = {
+        'h': 0,
+        's': 0,
+        'b': 100
+      };
+      allDisplayedSize = g.getActiveGridSize(videoEndTime, wordBlocks);
+      charBlocks = blocks;
       init = true;
-    } //player.requestPause();
+    } //-----------------------------------------------ここから繰り返しゾーン-----------------------------------------------
 
 
-    p5.background(0);
     var position = player.timer.position;
+    isPrelude = prelude && prelude['startTime'] < position && position < prelude['endTime'];
+    interlude = findInterlude(position, interludes);
+    isPostlude = postlude && postlude['startTime'] < position;
+    if (videoEndTime <= position) console.log(position); //if(interlude) console.log(interlude);
+    //if(isPrelude || isInterlude || isPostlude) console.log("プレリュード : " + isPrelude + " インタールード : " + isInterlude + " ポストルード : "+isPostlude);
+
+    if (!isChorus && chorusIndex < chorusList.length && currentChorus.startTime < position + 500) {
+      isChorus = true;
+      var res = g.getActiveGridSize(currentChorus.endTime, wordBlocks);
+      chorusSize['sizeX'] = res['sizeX'];
+      chorusSize['sizeY'] = res['sizeY'];
+      textColor = {
+        'h': Math.floor(Math.random() * 100),
+        's': 100,
+        'b': 100
+      };
+      console.log("サビです!!!!!!");
+    }
+
+    if (isChorus && currentChorus.endTime < position) {
+      isChorus = false;
+      zoomCamera._isInit = true; //console.log("サビおわたっw");
+
+      chorusIndex++;
+      currentChorus = chorusList[chorusIndex];
+      bgColor = p5.color(0);
+    }
+    /*
+    if(prelude && prelude['startTime'] < position && position < prelude['endTime']) {
+    	bgColor = 255;
+    	textColor = p5.color(0, 0, 0);
+    }
+    */
+
+
+    if (isChorus) {//bgColor = p5.color(255);
+    } else {//textColor = {'h': 0, 's': 0, 'b': 100 };
+    }
+
+    p5.background(bgColor);
+    /*
+    if(position > bgChangeTime['endTime'] - 1000) {
+    	//console.log("バックグラウンド変えますやで");
+    	const mt = bgChange2(p5, position, bgChangeTime['endTime']);
+    	if(mt >= 1) bgColor = p5.color(60, 85, 100);
+    }
+    */
+
     var beat = player.findBeat(position);
 
     if (beat) {
+      p5.push();
+      p5.rectMode(p5.CORNER);
       var progress = beat.progress(position);
-      var alpha = 100 * Ease.quintIn(progress);
-      var size = 500 + 800 * Ease.quintIn(progress);
+      var alpha = 80 * Ease.quintIn(progress);
+      var size = cameraSize * Ease.quintIn(progress);
       var x = p5.width * Ease.quintIn(progress);
-      p5.fill(10, 80, 50, alpha);
-      p5.strokeWeight(5);
-      p5.stroke(80, 100, 100, alpha);
-      p5.line(0, p5.height - 20, x, p5.height - 20); //p5.circle(p5.width / 2, p5.height / 2, size);
+      p5.fill(60, 100, 100, alpha);
+      p5.noStroke(); //p5.strokeWeight(5);
+      //p5.stroke(80, 100, 100, alpha);
+
+      var offset = 200;
+      var x1 = (p5.width / 2 - offset) * Ease.quintIn(progress);
+      p5.rect(0, 0, p5.width / 2 - offset - x1, p5.height);
+      p5.rect(p5.width / 2 + offset + x1, 0, p5.width / 2 - offset - x1, p5.height); //p5.line(0, p5.height - 20, x, p5.height - 20);
+      //p5.circle(p5.width / 2, p5.height / 2, size);
+
+      p5.pop();
     } //カメラ移動
 
     /*
@@ -2682,21 +3204,6 @@ new P5(function (p5) {
     p5.scale(worldCamera.zoom);
     */
 
-
-    if (chorusIndex < chorusList.length && currentChorus.startTime < position + 500) {
-      isChorus = true;
-      var res = g.getActiveGridSize(currentChorus.endTime, wordBlocks);
-      chorusSize['sizeX'] = res['sizeX'];
-      chorusSize['sizeY'] = res['sizeY']; //console.log("サビです!!!!!!");
-    }
-
-    if (isChorus && currentChorus.endTime < position) {
-      isChorus = false;
-      zoomCamera._isInit = true; //console.log("サビおわたっw");
-
-      chorusIndex++;
-      currentChorus = chorusList[chorusIndex];
-    }
     /*
     if(yarimasuta) {
     	const res = g.getActiveGridSize(currentChorus.endTime, wordBlocks);
@@ -2719,47 +3226,71 @@ new P5(function (p5) {
     }
     console.log(txt);
     */
+    //-----------------------------------------------ここからカメラゾーン-----------------------------------------------
 
 
-    autoCamera.update(position, isChorus);
+    if (!interlude) {
+      if (autoCamera.isInit) autoCamera._isInit = false;
+      autoCamera.update(position, isChorus);
+    } else {
+      if (!autoCamera.isInit) autoCamera.init_interlude(position, interlude, getDisplayedWords(position, wordBlocks));
+      autoCamera.update_interlude(position);
+    }
 
-    if (!isChorus) {
-      p5.translate(-(autoCamera._x - window.innerHeight / 2), -(autoCamera._y - window.innerHeight / 2)); //p5.translate(-(autoCamera._x - (window.innerWidth / 2)),  -(autoCamera._y - (window.innerHeight / 2)));
+    if (position && !isChorus && !isPostlude) {
+      p5.translate(-(autoCamera._x - cameraSize / 2), -(autoCamera._y - cameraSize / 2));
+      /*
+      			if(interlude) {
+      				p5.rotate(p5.radians(autoCamera._angle));
+      			}
+      			*/
 
       p5.scale(autoCamera.zoom);
     } else {
-      if (zoomCamera.isInit) {
-        zoomCamera.setInit(autoCamera._x - window.innerHeight / 2, autoCamera._y - window.innerHeight / 2, g.getActiveGridSize(currentChorus.endTime, wordBlocks), position, currentChorus.startTime);
-      }
+      if (isChorus) {
+        if (zoomCamera.isInit) {
+          zoomCamera.setInit(autoCamera._x - cameraSize / 2, autoCamera._y - cameraSize / 2, g.getActiveGridSize(currentChorus.endTime, wordBlocks), position, currentChorus.startTime);
+        }
 
-      zoomCamera.update(position); //zoomCamera.updateChorus(g.getActiveGridSize(currentChorus.endTime, wordBlocks));
+        zoomCamera.update(position);
+      } else if (isPostlude) {
+        if (zoomCamera.isInit) {
+          zoomCamera.setInit(autoCamera._x - cameraSize / 2, autoCamera._y - cameraSize / 2, g.getActiveGridSize(position, wordBlocks), position, position + 1000);
+        }
+
+        zoomCamera.update_postlude(position);
+      }
 
       p5.scale(zoomCamera.zoom);
       p5.translate(-zoomCamera.x, -zoomCamera.y);
     } //console.log("position : " + position + "  camera x : "+autoCamera._x+ "  y : "+ autoCamera._y);
-    //ブロックオブジェクトをすべて走査
 
 
-    var _iterator5 = _createForOfIteratorHelper(testBlocks),
-        _step5;
+    if (isPostlude) {
+      postludeProcess(p5, position, charBlocks);
+    } //-----------------------------------------------ここから図形描画ゾーン-----------------------------------------------
+
+
+    var _iterator9 = _createForOfIteratorHelper(testBlocks),
+        _step9;
 
     try {
-      for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
-        var _phrase = _step5.value;
+      for (_iterator9.s(); !(_step9 = _iterator9.n()).done;) {
+        var _phrase = _step9.value;
 
-        var _iterator7 = _createForOfIteratorHelper(_phrase._wordBlocks),
-            _step7;
+        var _iterator11 = _createForOfIteratorHelper(_phrase._wordBlocks),
+            _step11;
 
         try {
-          for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
-            var _word = _step7.value;
+          for (_iterator11.s(); !(_step11 = _iterator11.n()).done;) {
+            var _word = _step11.value;
 
-            var _iterator8 = _createForOfIteratorHelper(_word._blocks),
-                _step8;
+            var _iterator12 = _createForOfIteratorHelper(_word._blocks),
+                _step12;
 
             try {
-              for (_iterator8.s(); !(_step8 = _iterator8.n()).done;) {
-                var _char = _step8.value;
+              for (_iterator12.s(); !(_step12 = _iterator12.n()).done;) {
+                var _char = _step12.value;
 
                 if (isChorus) {
                   if (_char._startTime < position + 500 && position < _char._endTime) {
@@ -2775,83 +3306,29 @@ new P5(function (p5) {
                   }
                 }
 
+                if (_char._isVanished) continue;
+
                 if (_char._isDisplayed) {
                   //char.update();
                   _char.displayText();
                 } else if (_char._startTime < position + time_fadein) {
+                  _char._col = p5.color(textColor['h'], textColor['s'], textColor['b']);
+
                   _char.update_fadein(position);
 
                   _char.displayText();
                 }
               }
             } catch (err) {
-              _iterator8.e(err);
+              _iterator12.e(err);
             } finally {
-              _iterator8.f();
+              _iterator12.f();
             }
           }
         } catch (err) {
-          _iterator7.e(err);
+          _iterator11.e(err);
         } finally {
-          _iterator7.f();
-        }
-      }
-    } catch (err) {
-      _iterator5.e(err);
-    } finally {
-      _iterator5.f();
-    }
-
-    var _iterator6 = _createForOfIteratorHelper(balls),
-        _step6;
-
-    try {
-      for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
-        var _b = _step6.value;
-
-        _b.drawMulti();
-      }
-    } catch (err) {
-      _iterator6.e(err);
-    } finally {
-      _iterator6.f();
-    }
-
-    g.displayPoint();
-    (0, _drawGrid.drawGrid)(p5, canvasW, canvasH);
-  };
-
-  p5.mousePressed = function () {
-    console.log('マウス位置 : ' + p5.mouseX + ' / ' + p5.mouseY);
-    var posX = p5.mouseX + (autoCamera._x - window.innerWidth / 2);
-    var posY = p5.mouseY + (autoCamera._y - window.innerHeight / 2);
-    console.log('キャリブレ後 : ' + posX + ' / ' + posY);
-    var selectGridPos = [Math.floor(posY / globalBlockSize), Math.floor(posX / globalBlockSize)];
-    console.log('グリッドポジション : ' + selectGridPos[1] + ' / ' + selectGridPos[0]); //クリック位置から該当するブロックオブジェクトを探索
-
-    var _iterator9 = _createForOfIteratorHelper(wordBlocks),
-        _step9;
-
-    try {
-      for (_iterator9.s(); !(_step9 = _iterator9.n()).done;) {
-        var w = _step9.value;
-
-        var _iterator10 = _createForOfIteratorHelper(w._posInGrid),
-            _step10;
-
-        try {
-          for (_iterator10.s(); !(_step10 = _iterator10.n()).done;) {
-            var pos = _step10.value;
-
-            if (pos.toString() === selectGridPos.toString()) {
-              console.log(w.getText);
-              return;
-            }
-          }
-        } catch (err) {
-          _iterator10.e(err);
-        } finally {
-          _iterator10.f();
+          _iterator11.f();
         }
       }
     } catch (err) {
@@ -2859,16 +3336,107 @@ new P5(function (p5) {
     } finally {
       _iterator9.f();
     }
+
+    var _iterator10 = _createForOfIteratorHelper(balls),
+        _step10;
+
+    try {
+      for (_iterator10.s(); !(_step10 = _iterator10.n()).done;) {
+        var _b3 = _step10.value;
+
+        //if(beat) b.update(beat.progress(position));
+        _b3.drawMulti();
+      }
+    } catch (err) {
+      _iterator10.e(err);
+    } finally {
+      _iterator10.f();
+    }
+
+    if (isPostlude) {
+      p5.push();
+      p5.noStroke();
+      p5.blendMode(p5.SCREEN);
+      p5.fill(p5.color(0, 0, 100));
+      p5.textSize(allDisplayedSize['sizeX'] * globalBlockSize / selectedSong['title'].length);
+      p5.text(selectedSong['title'], canvasW / 2, canvasH / 2 - 400);
+      p5.textSize(allDisplayedSize['sizeX'] * globalBlockSize / selectedSong['artist'].length);
+      p5.text(selectedSong['artist'], canvasW / 2, canvasH / 2 + 300);
+      p5.pop();
+    } //g.displayPoint();
+    //drawGrid(p5, canvasW, canvasH);
+
   };
 
-  p5.keyPressed = function (key) {
-    worldCamera.draw(key.key);
+  p5.mousePressed = function () {
+    if (!player.isPlaying) return;
+    console.log('マウス位置 : ' + p5.mouseX + ' / ' + p5.mouseY);
+    var posX = p5.mouseX + (autoCamera._x - cameraSize / 2);
+    var posY = p5.mouseY + (autoCamera._y - cameraSize / 2);
+    console.log('キャリブレ後 : ' + posX + ' / ' + posY);
+    var selectGridPos = [Math.floor(posY / globalBlockSize), Math.floor(posX / globalBlockSize)];
+    console.log('グリッドポジション : ' + selectGridPos[1] + ' / ' + selectGridPos[0]); //クリック位置から該当するブロックオブジェクトを探索
+
+    var _iterator13 = _createForOfIteratorHelper(wordBlocks),
+        _step13;
+
+    try {
+      for (_iterator13.s(); !(_step13 = _iterator13.n()).done;) {
+        var w = _step13.value;
+
+        var _iterator14 = _createForOfIteratorHelper(w._posInGrid),
+            _step14;
+
+        try {
+          for (_iterator14.s(); !(_step14 = _iterator14.n()).done;) {
+            var pos = _step14.value;
+
+            if (pos.toString() === selectGridPos.toString()) {
+              console.log(w.getText);
+              return;
+            }
+          }
+        } catch (err) {
+          _iterator14.e(err);
+        } finally {
+          _iterator14.f();
+        }
+      }
+    } catch (err) {
+      _iterator13.e(err);
+    } finally {
+      _iterator13.f();
+    }
   };
 
-  p5.mouseDragged = function () {
-    worldCamera.posX = p5.mouseX;
-    worldCamera.posY = p5.mouseY;
+  var postludeProcess = function postludeProcess(p5, position, charBlock) {
+    var duration = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 3000;
+    var endTime = videoEndTime - duration;
+    var moveTime = Math.min(1, p5.map(endTime - position, duration, 0, 0, 1));
+    var vanishCount = Math.floor(charBlock.length * Ease.quintIn(moveTime));
+
+    for (var i = 0; i < vanishCount - vanishedIndex.length; i++) {
+      while (true) {
+        var index = Math.floor(Math.random() * charBlock.length);
+
+        if (!vanishedIndex.includes(index)) {
+          charBlock[index]._isVanished = true;
+          vanishedIndex.push(index);
+          break;
+        }
+      }
+    }
   };
+  /*
+  p5.keyPressed = (key) => {
+  	worldCamera.draw(key.key);
+  };
+  	p5.mouseDragged = () => {
+  	worldCamera.posX = p5.mouseX;
+  	worldCamera.posY = p5.mouseY;
+  };
+  */
+
 });
 
 var Camera = /*#__PURE__*/function () {
@@ -2932,13 +3500,27 @@ var ZoomCamera = /*#__PURE__*/function () {
     this.startTime = 0;
     this.endTime = 0;
     this.preScale = 1;
+    this.zoomInit = false;
   }
 
   _createClass(ZoomCamera, [{
+    key: "zoomInInit",
+    value: function zoomInInit() {
+      this.startTime = Date.now();
+      this.preScale = this._zoom;
+      this.zoomInit = true;
+    }
+  }, {
+    key: "zoomIn",
+    value: function zoomIn() {
+      this.moveTime = (Date.now() - this.startTime) / 500;
+      this._zoom = this.preScale + 1 * Ease.quintOut(this.moveTime);
+    }
+  }, {
     key: "updateChorus",
     value: function updateChorus(size) {
-      var xsize = window.innerHeight / (size['sizeX'] * globalBlockSize) * 1;
-      var ysize = window.innerHeight / (size['sizeY'] * globalBlockSize) * 1; //console.log('sizeX : ' + size['sizeX'] + '  sizeY : ' + size['sizeY']);
+      var xsize = cameraSize / (size['sizeX'] * globalBlockSize) * 1;
+      var ysize = cameraSize / (size['sizeY'] * globalBlockSize) * 1; //console.log('sizeX : ' + size['sizeX'] + '  sizeY : ' + size['sizeY']);
       //console.log('xsize : ' + xsize + '  ysize : ' + ysize);
 
       var scale = xsize < ysize ? xsize : ysize; //console.log('スケール' + scale);
@@ -2960,12 +3542,22 @@ var ZoomCamera = /*#__PURE__*/function () {
       console.log('moveTime : ' + this.moveTime + ' x : ' + this._x + ' y : ' + this._y + ' zoom : ' + this._zoom);
     }
   }, {
+    key: "update_postlude",
+    value: function update_postlude(position) {
+      if (position - this.startTime >= 1000) return;
+      this.moveTime = (position - this.startTime) / 1000;
+      this._x = this.preX + (this.distX - this.preX) * Ease.quintOut(this.moveTime);
+      this._y = this.preY + (this.distY - this.preY) * Ease.quintOut(this.moveTime);
+      this._zoom = 1 - (1 - this.distScale) * Ease.quintOut(this.moveTime);
+      console.log('moveTime : ' + this.moveTime + ' x : ' + this._x + ' y : ' + this._y + ' zoom : ' + this._zoom);
+    }
+  }, {
     key: "setInit",
     value: function setInit(preX, preY, size, startTime, endTime) {
       this.preX = preX;
       this.preY = preY;
-      var xsize = window.innerHeight / (size['sizeX'] * globalBlockSize) * 1;
-      var ysize = window.innerHeight / (size['sizeY'] * globalBlockSize) * 1;
+      var xsize = cameraSize / (size['sizeX'] * globalBlockSize) * 1;
+      var ysize = cameraSize / (size['sizeY'] * globalBlockSize) * 1;
       var scale = xsize < ysize ? xsize : ysize;
       this.distScale = scale;
       this.distX = canvasW / 2 - size['sizeX'] * globalBlockSize / 2;
@@ -2973,6 +3565,7 @@ var ZoomCamera = /*#__PURE__*/function () {
       this.startTime = startTime;
       this.endTime = endTime;
       this.isInit = false;
+      console.log("This is setInit /  preX : " + this.preX + " preY : " + this.preY + " distScale : " + this.distScale + " distX : " + this.distX + " distY : " + this.distY + " startTime : " + this.startTime + " endTime : " + this.endTime);
     }
   }, {
     key: "x",
@@ -2988,6 +3581,11 @@ var ZoomCamera = /*#__PURE__*/function () {
     key: "zoom",
     get: function get() {
       return this._zoom;
+    }
+  }, {
+    key: "_zoomInit",
+    get: function get() {
+      return this.zoomInit;
     }
   }, {
     key: "_isInit",
@@ -3028,11 +3626,63 @@ var AutoCamera = /*#__PURE__*/function () {
     console.log("limit is " + this.moveLimit);
     this.isEnd = false;
     this.quickMove = false;
+    this.isInit = false;
+    this.angle = 0;
+    this.preAngle = 0;
+    this.distAngle = 0;
   }
 
   _createClass(AutoCamera, [{
+    key: "init_interlude",
+    value: function init_interlude(position, interlude, displayedWords) {
+      var index = Math.floor(Math.random() * displayedWords.length);
+      console.log(index);
+      console.log(displayedWords);
+      this.distX = displayedWords[index]._posX;
+      this.distY = displayedWords[index]._posY;
+      this.preX = this.x;
+      this.preY = this.y;
+      this.startTime = interlude['startTime']; //this.endTime = interlude['endTime'];
+
+      this.moveLimit = interlude['endTime'] - interlude['startTime'];
+      var angle = displayedWords[index]._dir;
+      console.log(displayedWords[index]._dir);
+
+      switch (angle) {
+        case 'N':
+          this.distAngle = 0;
+          break;
+
+        case 'S':
+          this.distAngle = 180;
+          break;
+
+        case 'E':
+          this.distAngle = 90;
+          break;
+
+        case 'W':
+          this.distAngle = 270;
+          break;
+      }
+
+      this.isInit = true;
+    }
+  }, {
+    key: "update_interlude",
+    value: function update_interlude(position) {
+      this.moveTime = (position - this.startTime) / this.moveLimit;
+      this.x = this.preX + (this.distX - this.preX) * Ease.quintOut(this.moveTime);
+      this.y = this.preY + (this.distY - this.preY) * Ease.quintOut(this.moveTime);
+      this.angle = this.preAngle + this.distAngle * Ease.quintOut(this.moveTime); //console.log("angle : "+this.angle + "  ( distAngle : "+this.distAngle+" )");
+    }
+  }, {
     key: "update",
     value: function update(position, isChorus) {
+      //console.log('カメラ : ' +this.x + ' / '+this.y);
+      //console.log("テキスト : " + this.block[this.index]._text);
+      //console.log('dist : '+ this.distX + ' / '+this.distY);
+
       /*
       if(isChorus) {
       	this._zoom = 0.5;
@@ -3065,7 +3715,8 @@ var AutoCamera = /*#__PURE__*/function () {
         this.preY = this.y;
         this.index++; //最後の要素
 
-        if (this.index > this.block.length) {
+        if (this.index >= this.block.length) {
+          console.log("伊豆エンド");
           this.isEnd = true;
           return;
         }
@@ -3127,11 +3778,24 @@ var AutoCamera = /*#__PURE__*/function () {
     get: function get() {
       return this._zoom;
     }
+  }, {
+    key: "_angle",
+    get: function get() {
+      return this.angle;
+    }
+  }, {
+    key: "_isInit",
+    get: function get() {
+      return this.isInit;
+    },
+    set: function set(bool) {
+      this.isInit = bool;
+    }
   }]);
 
   return AutoCamera;
 }();
-},{"./Block":"js/Block.js","./Grid":"js/Grid.js","./drawGrid":"js/drawGrid.js","./WordBlock":"js/WordBlock.js","./PhraseBlock":"js/PhraseBlock.js","./Ball":"js/Ball.js"}],"../../.nodebrew/node/v18.3.0/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./Block":"js/Block.js","./Grid":"js/Grid.js","./drawGrid":"js/drawGrid.js","./WordBlock":"js/WordBlock.js","./PhraseBlock":"js/PhraseBlock.js","./Ball":"js/Ball.js","./SONG":"js/SONG.js"}],"../../.nodebrew/node/v18.3.0/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -3159,7 +3823,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65455" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55147" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

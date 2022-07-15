@@ -270,6 +270,7 @@ export class Grid {
 
   SearchGridBySizeable(text, sizelist) {
     //console.log("this is testSearchGrid");
+    //console.log(text + ' / ' +sizelist);
     const allAngleArray = this.getAllAngleArray(sizelist);
     let reservedPos = new Array();
     let outerReserve = new Array();
@@ -463,7 +464,7 @@ export class Grid {
       } else {
         sizeY = Math.abs(this.centerPos[1] - yleng['minY']) * 2;
       }
-      const result = { sizeX: sizeX, sizeY: sizeY };
+      const result = { sizeX: sizeX + 1, sizeY: sizeY + 1 };
       return result;
     };
 

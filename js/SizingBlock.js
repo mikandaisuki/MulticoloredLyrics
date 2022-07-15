@@ -17,9 +17,8 @@ export class SizingBlock {
     this.calcPos();
 
     this.alpha = 0;
-    this.col = col;
-
-    //this.col = this.p.color(255, 0, 0, this.alpha);
+    //this.col = col;
+    this.col = p.color(0, 0, 100);
 
     this.dir = dir;
     this.parent = parent;
@@ -72,6 +71,8 @@ export class SizingBlock {
     this.alpha_chorus = 0;
     this.col_chorus = p.color(100, 0, 100);
     this.col_chorusOut = p.color(Math.floor(Math.random() * 100), 100, 100);
+    //console.log("ブロックpos : " + this.posX + " / "+ this.posY);
+    this.isVanished = false;
   }
 
   update_fadein(position) {
@@ -79,7 +80,8 @@ export class SizingBlock {
     const progress = 1 - (this.startTime - position) / time_fadein;
     const eased = Ease.quintIn(progress);
     this.alpha = 100 * eased;
-    this.col = p.color(255, 0, 0, this.alpha);
+    //this.col = p.color(255, 0, 0, this.alpha);
+    this.col.setAlpha(this.alpha);
     let r = 90 * eased;
     r = p.constrain(r, 0, 90);
     const a = this.preAngle + r;
@@ -101,7 +103,7 @@ export class SizingBlock {
     p.translate(this.posX, this.posY);
     p.rotate(this.rad);
     p.noStroke();
-    p.fill(p.color(255, 0, 255, this.alpha));
+    p.fill(this.col);
     p.text(this.char, 0, 0);
     p.pop();
     //this.isDisplayed = true;
@@ -220,6 +222,15 @@ export class SizingBlock {
   }
   get _posY_chorus() {
     return this.posY_chorus;
+  }
+  get _isVanished() {
+    return this.isVanished;
+  }
+  set _col(col) {
+    this.col = col;
+  }
+  set _isVanished(bool) {
+    this.isVanished = bool;
   }
 
 }

@@ -248,4 +248,7 @@ export class WordBlock {
   get _endTime() {
     return this.endTime;
   }
+  get _dir() {
+    return this.dir;
+  }
 }

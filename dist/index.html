@@ -4,78 +4,24 @@
     <link rel="stylesheet" href="/HelloJS3.9ad09f98.css">
     <meta charset="utf-8">
 
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Monoton&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500&display=swap" rel="stylesheet">
   <script src="/HelloJS3.9ad09f98.js"></script></head>
   <body>
     <!-- Playerクラスのオプション、mediaElementのため -->
     <div id="media"></div>
     <div id="result"></div>
-    イベントリスナの状態<br>
-    onAppReady:<span id="onAppReady"></span><br>
-    onVideoReady:<span id="onVideoReady"></span><br>
-    <br><br>
 
-    楽曲情報<br>
-    楽曲名　　　　：<span id="song_name"></span><br>
-    アーティスト名：<span id="song_artist"></span><br>
-    リンク　　　　：<span id="song_permalink"></span><br>
-    <br>
-
-    歌詞は以下に表示(animation関数を割り当てる)<br>
-    フレーズ：<span id="text_phrase"></span><br>
-    単語　　：<span id="text_word"></span><br>
-    文字　　：<span id="text_char"></span><br>
-    <br>
-
-    現在の位置[ms]<br>
-    位置：<span id="position"></span><br>
-    <br>
-
-    ビートの情報<br>
-    index：<span id="beat_index"></span><br>
-    duration[ms]：<span id="beat_duration"></span><br>
-    <br>
-
-    コード進行の情報<br>
-    index：<span id="chord_index"></span><br>
-    duration[ms]：<span id="chord_duration"></span><br>
-    <br>
-
-    コーラスの情報<br>
-    index：<span id="chorus_index"></span><br>
-    duration[ms]：<span id="chorus_duration"></span><br>
-    <br>
-
-    楽曲のV/A空間<br>
-    V：<span id="VA_V"></span><br>
-    A：<span id="VA_A"></span><br>
-    <br>
-
-
-    声量の情報<br>
-    volume：<span id="volume"></span><br>
-    <br>
-
-    フレーズの情報<br>
-    phrase：<span id="phrase"></span><br>
-    <br>
-
-    単語の情報<br>
-    word：<span id="word"></span><br>
-    <br>
-
-    文字の情報<br>
-    char：<span id="char"></span><br>
-    <br>
-    <hr>
-    サビの情報（onVideoReadyの直後）<br>
-    segments :<span id="segments"></span><br>
+    <!--
+    <div class="seekContainer">
+      <input id="seek-bar" type="range" value="0" class="form-range">
+    </div>
+  -->
 
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://unpkg.com/textalive-app-api/dist/index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/p5@1.4.1/lib/p5.js"></script>
     <script src="/js.00a46daa.js"></script>
-
   </body>
 </html>

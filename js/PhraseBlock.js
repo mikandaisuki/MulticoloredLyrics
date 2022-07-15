@@ -10,8 +10,10 @@ export class PhraseBlock {
     this.textArr = new Array();
     this.setArrByPartOfSpeech(phrase);
 
-    if(this.phrase.text.includes('、') || this.phrase.text.includes('。') || this.phrase.text.includes('？')) this.setArrByPunct();
-    if(this.phrase.text.includes('(')) this.setArrByText();
+    if(this.phrase.text.includes('、') || this.phrase.text.includes('。') || this.phrase.text.includes('？') || this.phrase.text.includes('！') || this.phrase.text.includes('!')) this.setArrByPunct();
+
+    if(this.phrase.text.includes('(') || this.phrase.text.includes('「') || this.phrase.text.includes('『')) this.setArrByText();
+
     if(this.textArr.length != this.wordObArray.length) console.log("要素数違うお！");
     this.phraseleng = this.textArr.length;
 
@@ -60,7 +62,7 @@ export class PhraseBlock {
       }
       w.push(word); //wordオブジェクトを配列にする
       //助詞(P),助動詞(M)のとき前の要素に追加
-      if(word.pos === 'P' || word.pos === 'M') {
+      if( (wordObArray[i-1] && word.pos === 'P') || (wordObArray[i-1] && word.pos === 'M') || text === '...') {
         textArray[i-1] += text;
         wordObArray[i-1].push(word);
       //連体詞(A)のとき後ろの要素に追加
@@ -85,7 +87,7 @@ export class PhraseBlock {
     let tmpOb = new Array();
 
     for(let i = 0; i < textA.length; i++) {
-      if(textA[i].includes('、') || textA[i].includes('。') || textA[i].includes('？')) {
+      if(textA[i].includes('、') || textA[i].includes('。') || textA[i].includes('？') || textA[i].includes('！') || textA[i].includes('!')) {
         const tmpText = textA[i];
         const tmpOb = obA[i];
         textA.splice(i, 1);
@@ -114,7 +116,7 @@ export class PhraseBlock {
     let newA;
     let no;
     for(let i = 0; i < textA.length; i++) {
-      if(textA[i].includes('(')) {
+      if(textA[i].includes('(') || textA[i].includes('「') || textA[i].includes('『')) {
         isStart = true;
         startIndex = i;
         endIndex = i;
@@ -124,7 +126,7 @@ export class PhraseBlock {
         for(const ob of obA[i]) {
           tmpOb.push(ob);
         }
-        if(textA[i].includes(')')) {
+        if(textA[i].includes(')') || textA[i].includes('」') || textA[i].includes('』')) {
           textA.splice(startIndex, endIndex);
           obA.splice(startIndex, endIndex);
           textA.push(tmpText);
