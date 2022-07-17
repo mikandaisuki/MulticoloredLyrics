@@ -10,7 +10,7 @@ export class PhraseBlock {
     this.textArr = new Array();
     this.setArrByPartOfSpeech(phrase);
 
-    if(this.phrase.text.includes('、') || this.phrase.text.includes('。') || this.phrase.text.includes('？') || this.phrase.text.includes('！') || this.phrase.text.includes('!')) this.setArrByPunct();
+    if(this.phrase.text.includes('、') || this.phrase.text.includes(',') || this.phrase.text.includes('。') || this.phrase.text.includes('？') || this.phrase.text.includes('！') || this.phrase.text.includes('!')) this.setArrByPunct();
 
     if(this.phrase.text.includes('(') || this.phrase.text.includes('「') || this.phrase.text.includes('『')) this.setArrByText();
 
@@ -87,7 +87,7 @@ export class PhraseBlock {
     let tmpOb = new Array();
 
     for(let i = 0; i < textA.length; i++) {
-      if(textA[i].includes('、') || textA[i].includes('。') || textA[i].includes('？') || textA[i].includes('！') || textA[i].includes('!')) {
+      if(textA[i].includes('、') || textA[i].includes(',') || textA[i].includes('。') || textA[i].includes('？') || textA[i].includes('！') || textA[i].includes('!')) {
         const tmpText = textA[i];
         const tmpOb = obA[i];
         textA.splice(i, 1);

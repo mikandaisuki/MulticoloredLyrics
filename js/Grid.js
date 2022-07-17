@@ -464,7 +464,7 @@ export class Grid {
       } else {
         sizeY = Math.abs(this.centerPos[1] - yleng['minY']) * 2;
       }
-      const result = { sizeX: sizeX + 1, sizeY: sizeY + 1 };
+      const result = { sizeX: sizeX + 2, sizeY: sizeY + 2, xleng: xleng, yleng: yleng, };
       return result;
     };
 
@@ -475,7 +475,7 @@ export class Grid {
         }
       }
     }
-    //this.printActiveGrid(activeGrid);
+    this.printActiveGrid(activeGrid);
     return getGridSize(activeGrid);
   }
 

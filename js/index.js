@@ -1,5 +1,7 @@
 const P5 = p5;
-const { Player, Ease } = TextAliveApp;
+//const { Player, Ease } = TextAliveApp;
+import { Player, Ease } from "textalive-app-api";
+
 import { Block } from './Block';
 import { Grid } from './Grid';
 import { drawGrid } from './drawGrid';
@@ -310,31 +312,63 @@ const getDisplayedWords = (position, wordBlocks) => {
 	return words;
 }
 
-const bgChange = (p5, position, endTime, duration = 1000, col = p5.color(60, 85, 100)) => {
+const bgChange = (p5, position, startTime, col, duration = 1000) => {
 	const rectWidth = p5.width / 5;
-	const moveTime = Math.min(1, p5.map(endTime - position, duration, 0, 0, 1));
+	//const moveTime = Math.min(1, p5.map(endTime - position, duration, 0, 0, 1));
 	//console.log("rectWidth : " +rectWidth + " moveTime : "+moveTime);
+	const moveTime = Math.min(1, p5.map(position - startTime, 0, duration, 0, 1));
+
 	p5.noStroke();
 	p5.fill(col);
-	if(moveTime < 1) {
-		for(let i = 0; i < 5; i++) {
-			p5.rect( (i * rectWidth) + (rectWidth / 2), p5.height / 2, rectWidth * Ease.quartIn(moveTime), p5.height );
+	for(let i = 0; i < 5; i++) {
+		p5.rect( (i * rectWidth) + (rectWidth / 2), p5.height / 2, rectWidth * Ease.quartIn(moveTime), p5.height );
+	}
+	return moveTime;
+}
+
+const bgChange2 = (p5, position, startTime, col, duration = 1000) => {
+	const size = p5.width / 5;
+	//const moveTime = Math.min(1, p5.map(endTime - position, duration, 0, 0, 1));
+	const moveTime = Math.min(1, p5.map(position - startTime, 0, duration, 0, 1));
+
+	p5.noStroke();
+	p5.fill(col);
+	for(let y = 0; y < 6; y++) {
+		for(let x = 0; x < 6; x++) {
+			p5.circle(x * size, y * size , (size * 2) * Ease.sineOut(moveTime));
 		}
 	}
 	return moveTime;
 }
 
-const bgChange2 = (p5, position, endTime, duration = 1000, col = p5.color(60, 85, 100)) => {
-	const circleNum = 6;
-	const size = p5.width / 5;
-	const moveTime = Math.min(1, p5.map(endTime - position, duration, 0, 0, 1));
+const bgChange3 = (p5, position, startTime, col, duration = 1000) => {
+	p5.push();
+	//const moveTime = Math.min(1, p5.map(endTime - position, duration, 0, 0, 1));
+	const moveTime = Math.min(1, p5.map(position - startTime, 0, duration, 0, 1));
+
 	p5.noStroke();
 	p5.fill(col);
-	for(let y = 0; y < circleNum; y++) {
-		for(let x = 0; x < circleNum; x++) {
-			p5.circle(x * size, y * size , (size * 2) * Ease.sineOut(moveTime));
-		}
-	}
+	p5.arc(p5.width / 2, p5.height / 2, p5.width + p5.width / 2, p5.height + p5.height / 2, -90, -90 + 360 * Ease.bounceOut(moveTime));
+	p5.pop();
+	return moveTime;
+}
+
+const bgChange4 = (p5, position, startTime, col, duration = 2000) => {
+	p5.push();
+	//const moveTime = Math.min(1, p5.map(endTime - position, duration, 0, 0, 1));
+	const moveTime = Math.min(1, p5.map(position - startTime, 0, 1000, 0, 1));
+	const moveTime2 = Math.min(1, p5.map(position - startTime, 1000, 2000, 0, 1));
+	const moveTime3 = Math.min(1, p5.map(position - startTime, 1500, duration, 0, 1));
+
+	p5.noFill();
+	p5.strokeWeight(10);
+	p5.stroke(col);
+	p5.circle(p5.width / 2, p5.height / 2, (p5.width + p5.width / 2) * Ease.sineOut(moveTime2));
+	//p5.circle(p5.width / 2, p5.height / 2, (p5.width + p5.width / 2) * Ease.sineOut(moveTime2));
+
+	p5.pop();
+
+	return moveTime3;
 }
 
 /*
@@ -408,6 +442,18 @@ new P5((p5) => {
 	let vanishedIndex = [];
 
 	let allDisplayedSize;
+
+	let isVideoEnd = false;
+
+	let wordCenterX;
+
+	let isBgChanging = false;
+	let bgChangeStartTime;
+	//let bgChangeEndTime;
+	let distBgCol;
+	let mt;
+
+	let bgChangePattern = [bgChange, bgChange2, bgChange3];
 	p5.preload = () => {
 		//myFont = p5.loadFont('./assets/MPLUSRounded1c-Light.ttf');
 	}
@@ -457,12 +503,17 @@ new P5((p5) => {
     const playBtn = document.getElementById("play");
     const playText = playBtn.children[0];
     const bs = document.getElementsByClassName("btn-gradient");
+		const btnText = document.querySelectorAll(".btn-gradient > span");
+		console.log(btnText);
 
     for(const b of bs) {
       b.style.width = cameraSize - 100;
     }
     playBtn.style.width = cameraSize - 100;
-		console.log(bs);
+		for(const bt of btnText) {
+      bt.style.fontSize = '40px';
+    }
+
     const changeElement = (element, text) => {
       playBtn.style.backgroundColor = '#3333FF';
       playBtn.style.boxShadow = '0px 0px 0px 4px #FF0099';
@@ -523,12 +574,13 @@ new P5((p5) => {
 				const playing = p5.createDiv(`
 					<ul id="List" class="list">
 						<li class="item">
-							<a id="Loaded", class="btn btn-gradient"><span>Start!</span></a>
+							<a id="Loaded", class="btn btn-gradient"><span>START!</span></a>
 						</li>
 					</ul>
 				`);
 				playing.id('playing');
 				const playingBtn = document.getElementById("Loaded");
+				playingBtn.style.height = cameraSize / 5;
 				playingBtn.style.width = cameraSize;
 
 				playingBtn.addEventListener('click', () => {
@@ -557,6 +609,9 @@ new P5((p5) => {
 		p5.frameRate(60);
 		worldCamera = new Camera(p5, canvasW, canvasH);
     //g = new Grid(p5, canvasW, canvasH);
+
+		p5.angleMode(p5.DEGREES);
+
     init = false;
   };
 
@@ -616,6 +671,11 @@ new P5((p5) => {
 			textColor = {'h': 0, 's': 0, 'b': 100};
 
 			allDisplayedSize = g.getActiveGridSize(videoEndTime, wordBlocks);
+			console.log(allDisplayedSize);
+			console.log(allDisplayedSize['xleng']['minX']);
+			//const xleng = allDisplayedSize['xleng']
+			wordCenterX = ((allDisplayedSize['sizeX'] * globalBlockSize) / 2);
+
 			charBlocks = blocks;
       init = true;
 
@@ -623,10 +683,12 @@ new P5((p5) => {
 
 		//-----------------------------------------------ここから繰り返しゾーン-----------------------------------------------
 		const position = player.timer.position;
+		//if(position > videoEndTime) return;
+
 		isPrelude = prelude && (prelude['startTime'] < position) && (position < prelude['endTime']);
 		interlude = findInterlude(position, interludes);
 		isPostlude = postlude && (postlude['startTime'] < position);
-		if(videoEndTime <= position) console.log(position);
+		//if(videoEndTime <= position) console.log(position);
 		//if(interlude) console.log(interlude);
 		//if(isPrelude || isInterlude || isPostlude) console.log("プレリュード : " + isPrelude + " インタールード : " + isInterlude + " ポストルード : "+isPostlude);
 
@@ -644,7 +706,7 @@ new P5((p5) => {
 			//console.log("サビおわたっw");
 			chorusIndex++;
 			currentChorus = chorusList[chorusIndex];
-			bgColor = p5.color(0);
+			//bgColor = p5.color(0);
 
 		}
 
@@ -662,6 +724,15 @@ new P5((p5) => {
 
     p5.background(bgColor);
 
+		if(mt) {
+			const changeTime = mt(p5, position, bgChangeStartTime, distBgCol);
+			if(changeTime == 1) {
+				bgColor = distBgCol;
+				mt = null;
+				isBgChanging = false;
+			}
+		}
+
 		/*
 		if(position > bgChangeTime['endTime'] - 1000) {
 			//console.log("バックグラウンド変えますやで");
@@ -670,6 +741,7 @@ new P5((p5) => {
 		}
 		*/
 
+		/*
 		const beat = player.findBeat(position);
 		if(beat) {
 			p5.push();
@@ -686,11 +758,34 @@ new P5((p5) => {
 			const x1 = (p5.width / 2 - offset) * Ease.quintIn(progress);
 			p5.rect(0, 0, (p5.width / 2 - offset) - x1, p5.height);
 			p5.rect((p5.width / 2 + offset) + x1, 0, (p5.width / 2 - offset) - x1, p5.height);
+			//p5.text("こんちは", p5.width / 2, p5.height / 2);
+			//p5.text(selectedSong['title'], p5.width / 2, p5.height /2 );
+
 			//p5.line(0, p5.height - 20, x, p5.height - 20);
 			//p5.circle(p5.width / 2, p5.height / 2, size);
 			p5.pop();
 		}
+		*/
 
+
+		if(isPostlude || isVideoEnd) {
+			let moveTime;
+			if(position) moveTime = p5.min(1, p5.map(videoEndTime - position, 3000, 0, 0, 1));
+			else moveTime = 1;
+
+			console.log(moveTime);
+			p5.push();
+			p5.noStroke();
+			p5.blendMode(p5.SCREEN);
+			p5.fill(0, 0, 100, 100 * Ease.quintIn(moveTime));
+			const size = p5.width / selectedSong['title'].length;
+			p5.textSize(size);
+			p5.text(selectedSong['title'], p5.width / 2, p5.height / 2);
+			const artistSize = p5.width / selectedSong['artist'].length;
+			p5.textSize(artistSize);
+			p5.text(selectedSong['artist'], p5.width / 2, p5.height / 2 + size / 2 + artistSize / 2);
+			p5.pop();
+		}
 
 		//カメラ移動
 		/*
@@ -766,6 +861,7 @@ new P5((p5) => {
 
 
 		if(isPostlude) {
+			isVideoEnd = true;
 			postludeProcess(p5, position, charBlocks);
 		}
 		//-----------------------------------------------ここから図形描画ゾーン-----------------------------------------------
@@ -797,28 +893,54 @@ new P5((p5) => {
 			}
 		}
 
+
 		for(const b of balls) {
 			//if(beat) b.update(beat.progress(position));
 			b.drawMulti();
 		}
 
-		if(isPostlude) {
+
+		/*
+		if(isPostlude || isVideoEnd) {
+			const xxx = zoomCamera._distX;
 			p5.push();
 			p5.noStroke();
 			p5.blendMode(p5.SCREEN);
 			p5.fill(p5.color(0, 0, 100));
 			p5.textSize( (allDisplayedSize['sizeX'] * globalBlockSize) / selectedSong['title'].length );
-			p5.text(selectedSong['title'], canvasW / 2, (canvasH / 2) - 400);
+			p5.rect(wordCenterX, (canvasH / 2), 200);
+			const min = (canvasW / 2) - ((allDisplayedSize['sizeX'] * globalBlockSize) / 2);
+			const max = (canvasW / 2) + ((allDisplayedSize['sizeX'] * globalBlockSize) / 2);
+			p5.rect(min , canvasH / 2, 300);
+			p5.rect(max , canvasH / 2, 300);
+			console.log('ひだりがわ : '+ min + ' みぎがわ : '+ max);
+			console.log('p5 width : '+p5.width + ' canvasW : '+canvasW);
+			p5.text(selectedSong['title'], p5.width / 2, (canvasH / 2) - 400);
 			p5.textSize( (allDisplayedSize['sizeX'] * globalBlockSize) / selectedSong['artist'].length );
 			p5.text(selectedSong['artist'], canvasW / 2, (canvasH / 2) + 300);
 			p5.pop();
 		}
+		*/
 
     //g.displayPoint();
     //drawGrid(p5, canvasW, canvasH);
+
   };
 
 	p5.mousePressed = () => {
+		if(player.isPlaying && !isBgChanging) {
+			const randInt = Math.floor(Math.random() * bgChangePattern.length);
+			//mt = bgChangePattern[randInt];
+			mt = bgChange4;
+			//bgChangeEndTime = player.timer.position + 1000;
+			bgChangeStartTime = player.timer.position;
+			distBgCol = p5.color(Math.floor(Math.random() * 100), 80, 80);
+			isBgChanging = true;
+			//if(mt >= 1) bgColor = p5.color(60, 85, 100);
+		}
+		//if(player.isPlaying) player.requestPause();
+		//else player.requestPlay();
+
 		if(!player.isPlaying) return;
 		console.log('マウス位置 : ' + p5.mouseX + ' / ' + p5.mouseY);
 		const posX = p5.mouseX + (autoCamera._x - (cameraSize / 2));
@@ -836,6 +958,10 @@ new P5((p5) => {
 			}
 		}
 	};
+
+	p5.doubleClicked = () => {
+		console.log("ダブルクリックされました");
+	}
 
 	const postludeProcess = (p5, position, charBlock, duration = 3000) => {
 		const endTime = videoEndTime - duration;
@@ -943,18 +1069,19 @@ class ZoomCamera {
 	}
 
 	update(position) {
-		if(position - this.startTime >= 500) return;
-		//if(this._x == this.distX && this._y == this.distY && this._zoom == this.distScale) return;
-		this.moveTime = (position - this.startTime) / 500;
+		//if(position - this.startTime >= 500) return;
+		this.moveTime = Math.min(1, this.p.map(position - this.startTime, 0, 500, 0, 1));
+		//this.moveTime = (position - this.startTime) / 500;
 		this._x = this.preX + (this.distX - this.preX) * Ease.quintOut(this.moveTime);
 		this._y = this.preY + (this.distY - this.preY) * Ease.quintOut(this.moveTime);
 		this._zoom = 1 - ( (1 - this.distScale) * Ease.quintOut(this.moveTime) );
-		console.log('moveTime : '+this.moveTime+' x : '+this._x+' y : '+this._y+' zoom : '+this._zoom);
+		//console.log('moveTime : '+this.moveTime+' x : '+this._x+' y : '+this._y+' zoom : '+this._zoom);
 	}
 
 	update_postlude(position) {
-		if(position - this.startTime >= 1000) return;
-		this.moveTime = (position - this.startTime) / 1000;
+		//if(position - this.startTime >= 1000) return;
+		this.moveTime = Math.min(1, this.p.map(position - this.startTime, 0, 1000, 0, 1));
+		//this.moveTime = (position - this.startTime) / 1000;
 		this._x = this.preX + (this.distX - this.preX) * Ease.quintOut(this.moveTime);
 		this._y = this.preY + (this.distY - this.preY) * Ease.quintOut(this.moveTime);
 		this._zoom = 1 - ( (1 - this.distScale) * Ease.quintOut(this.moveTime) );
@@ -974,6 +1101,7 @@ class ZoomCamera {
 		this.endTime = endTime;
 		this.isInit = false;
 		console.log("This is setInit /  preX : "+this.preX+" preY : "+this.preY+" distScale : "+this.distScale+ " distX : "+this.distX + " distY : "+this.distY+" startTime : "+this.startTime + " endTime : "+this.endTime);
+		console.log("cameraSize : "+cameraSize+" sizeX : " + size['sizeX'] + " sizeY : "+size['sizeY']);
 	}
 
 	get x() {
@@ -981,6 +1109,9 @@ class ZoomCamera {
 	}
 	get y() {
 		return this._y;
+	}
+	get _distX() {
+		return this.distX;
 	}
 	get zoom() {
 		return this._zoom;
@@ -1105,7 +1236,7 @@ class AutoCamera {
 
 			//最後の要素
 			if(this.index >= this.block.length) {
-				console.log("伊豆エンド");
+				//console.log("伊豆エンド");
 				this.isEnd = true;
 				return;
 			}

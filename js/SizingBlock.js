@@ -61,7 +61,8 @@ export class SizingBlock {
         this.angle = 270;
         break;
     }
-    this.distRad = p.radians(this.angle);
+
+    //this.distRad = p.radians(this.angle);
     this.preAngle = this.angle - 90;
     this.rad = 0;
     this.isSetChorusPos = false;
@@ -85,7 +86,9 @@ export class SizingBlock {
     let r = 90 * eased;
     r = p.constrain(r, 0, 90);
     const a = this.preAngle + r;
-    this.rad = p.radians(a);
+    this.angle = a;
+    //this.rad = p.radians(a);
+
     //console.log(this.char + " / " + progress + ' : ' + eased + ' : ' + this.alpha);
     //console.log(this.char + " / " + progress + ' : ' + this.preAngle + ' : ' + r);
 
@@ -100,8 +103,11 @@ export class SizingBlock {
     const p = this.p;
     p.textSize(this.blockSize);
     p.push();
+
+    p.blendMode(p.DIFFERENCE);
+
     p.translate(this.posX, this.posY);
-    p.rotate(this.rad);
+    p.rotate(this.angle);
     p.noStroke();
     p.fill(this.col);
     p.text(this.char, 0, 0);
@@ -189,7 +195,7 @@ export class SizingBlock {
     const maxX = (canvasW / 2) + ((sizeX * globalBlockSize) / 2) - (this.size_chorus / 2);
     const minY = (canvasH / 2) - ((sizeY * globalBlockSize) / 2) + (this.size_chorus / 2);
     const maxY = (canvasH / 2) + ((sizeY * globalBlockSize) / 2) - (this.size_chorus / 2);
-    console.log('sizeX : '+sizeX+' sizeY : '+sizeY+' / minX : '+minX+' maxX : '+maxX);
+    //console.log('sizeX : '+sizeX+' sizeY : '+sizeY+' / minX : '+minX+' maxX : '+maxX);
     this.posX_chorus = Math.floor(Math.random() * (maxX - minX) + minX);
     this.posY_chorus = Math.floor(Math.random() * (maxY - minY) + minY);
     //console.log(this.posX_chorus + ' / '+this.posY_chorus);
