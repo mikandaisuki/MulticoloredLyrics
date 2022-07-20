@@ -87,10 +87,11 @@ npm run build
 
 ![サビ2](https://user-images.githubusercontent.com/10074877/179977479-e6cad4ce-c884-4702-be81-128ada774fb6.gif)
 
-
 ### 間奏パート
 * 表示済みのランダムな歌詞にカメラ移動します。
 * パーティクルがビートに合わせて鼓動します。
+
+![間奏](https://user-images.githubusercontent.com/10074877/179978146-63335f58-48f6-4bb2-bc34-a27b3e39ac3d.gif)
 
 ### エンディング
 * 歌詞が徐々に消えていき、パーティクルだけが残ります。
