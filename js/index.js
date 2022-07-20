@@ -47,17 +47,13 @@ function onVideoReady(v){
   videoEndTime = player.data.song.length　* 1000;
   phrases = player.video.phrases;
   songInfo = player.data.songMap.segments;
-  //console.log(songInfo);
   for(const element of player.data.songMap.segments){
     segments_contenst = segments_contenst + String(element.chorus) + "(" + String(element.duration) + " [ms]), ";
-    //console.log("セグメント情報");
-    //console.log(element);
     if(element.chorus) {
       sabi = element;
       chorus = sabi.segments;
     }
   }
-  //console.log("れあでぃ");
   isVideoReady = true;
 }
 
@@ -195,7 +191,6 @@ new P5((p5) => {
   const centerx = 300;
   const centery = 300;
   const block = 100;
-  const showGrid = true;
   let b;
   let b2;
   let g;
@@ -204,22 +199,16 @@ new P5((p5) => {
   let worldCamera;
   let autoCamera;
   let zoomCamera;
-
   let myFont;
-
   let isChorus = false;
   let chorusList;
   let currentChorus;
   let chorusIndex = 0;
   let chorusSize = { sizeX: 0, sizeY: 0, };
-
   let wordBlocks;
   let charBlocks;
-
   let yarimasuta = true;
-
   const balls = new Array();
-
   let prelude;
   let isPrelude = false;
   let interludes;
@@ -227,18 +216,12 @@ new P5((p5) => {
   let isInterlude = false;
   let postlude;
   let isPostlude = false;
-
   let bgColor;
   let textColor;
-
   let bgChangeTime = { endTime: 5000, };
-
   let vanishedIndex = [];
-
   let allDisplayedSize;
-
   let isVideoEnd = false;
-
   let wordCenterX;
   let isBgChanging = false;
   let bgChangeStartTime;
@@ -252,16 +235,11 @@ new P5((p5) => {
   let colorNum = 5;
   let isTextChanging = false;
   let colorSegWords = [];
-  p5.preload = () => {
-    //myFont = p5.loadFont('./assets/MPLUSRounded1c-Light.ttf');
-  }
 
   p5.setup = () => {
-    //let result = p5.createCanvas(window.innerWidth, window.innerHeight);
     let result = p5.createCanvas(cameraSize, cameraSize);
     result.parent("result");
 
-    //create select song element
     let btnlist = p5.createDiv(`
       <ul id="List" class="list">
         <li class="item">
@@ -290,8 +268,6 @@ new P5((p5) => {
     `);
     btnlist.id('btnlist');
     btnlist = document.getElementById("btnlist");
-
-
     const btn1 = document.getElementById("LoadingMemories");
     const btn2 = document.getElementById("青に溶けた風船");
     const btn3 = document.getElementById("歌の欠片と");
@@ -302,7 +278,6 @@ new P5((p5) => {
     const playText = playBtn.children[0];
     const bs = document.getElementsByClassName("btn-gradient");
     const btnText = document.querySelectorAll(".btn-gradient > span");
-    console.log(btnText);
 
     for(const b of bs) {
       b.style.width = cameraSize - 100;
@@ -324,50 +299,32 @@ new P5((p5) => {
     };
 
     btn1.addEventListener('click', () => {
-      console.log("LoadingMemories");
       selectedSong = SONG["Loading Memories / せきこみごはん feat. 初音ミク"];
       changeElement(btn1, "LoadingMemories");
     });
     btn2.addEventListener('click', () => {
-      console.log("青に溶けた風船");
       selectedSong = SONG["青に溶けた風船 / シアン・キノ feat. 初音ミク"];
       changeElement(btn2, "青に溶けた風船");
     });
     btn3.addEventListener('click', () => {
-      console.log("歌の欠片と");
       selectedSong = SONG["歌の欠片と / imo feat. MEIKO"];
       changeElement(btn3, "歌の欠片と");
     });
     btn4.addEventListener('click', () => {
-      console.log("未完のストーリー");
       selectedSong = SONG["未完のストーリー / 加賀（ネギシャワーP） feat. 初音ミク"];
       changeElement(btn4, "未完のストーリー");
     });
     btn5.addEventListener('click', () => {
-      console.log("みはるかす");
       selectedSong = SONG["みはるかす / ねこむら（cat nap） feat. 初音ミク"];
       changeElement(btn5, "みはるかす");
     });
     btn6.addEventListener('click', () => {
-      console.log("fear");
       selectedSong = SONG["fear / 201 feat. 初音ミク"];
       changeElement(btn6, "fear");
     });
     playBtn.addEventListener('click', () => {
-      console.log("PLAY");
-      //if(player.isPlaying || player.timer.isPlaying) return;
       if(selectedSong) {
         player.createFromSongUrl(selectedSong.songUrl, { video: selectedSong.video });
-        /*
-        if(!init || !isTimerReady || player.isLoading) {
-          playText.textContent = "Now Loading...";
-          return;
-        }
-        if(isTimerReady && !player.isPlaying && !player.timer.isPlaying) {
-          //player.timer.initialize();
-          player.video && player.requestPlay();
-        }
-        */
         btnlist.remove();
         const playing = p5.createDiv(`
           <ul id="List" class="list">
@@ -381,17 +338,15 @@ new P5((p5) => {
         playingBtn.style.height = cameraSize / 5;
         playingBtn.style.width = cameraSize;
         startingText = document.querySelector("#Loaded > span");
-        console.log(startingText);
 
         playingBtn.addEventListener('click', () => {
-          console.log("おされたんご");
           if(init && player.video && player.timer && isTimerReady) {
             player.requestPlay();
             playing.remove();
           }
         });
       } else {
-        playText.textContent = "選べカス";
+        playText.textContent = "曲を選んでね";
       }
     });
 
@@ -403,19 +358,15 @@ new P5((p5) => {
     p5.angleMode(p5.DEGREES);
     p5.frameRate(60);
     pg = p5.createGraphics(cameraSize, cameraSize);
-
     init = false;
   };
 
   p5.draw = () => {
-    //console.log("now drawing");
     if(!player || !player.video || !player.timer) {
-      //console.log("ぷれいやー準備できてへん");
       return;
     } else if(!init && isVideoReady){
-      console.log("---------Start initial draw------------");
+      //console.log("---------Start initial draw------------");
       g = new Grid(p5, canvasW, canvasH);
-
       phraseBlocks = new Array(phrases.length);
       wordBlocks = new Array();
 
@@ -426,17 +377,12 @@ new P5((p5) => {
       for(let cou = 0; cou < phrases.length; cou++) {
         test.push(phrases[cou]);
       }
-      //console.log("あああああああああああ");
-      //console.log(test);
       testBlocks = new Array(test.length);
       for(const p of test) {
-        //console.log(p);
         testBlocks[i] = new PhraseBlock(p5, g, p);
         i++;
       }
-
       const blocks = new Array();
-      //const wordBlocks = new Array();
       for(const phrase of testBlocks) {
         for(const word of phrase._wordBlocks) {
           wordBlocks.push(word);
@@ -445,38 +391,25 @@ new P5((p5) => {
           }
         }
       }
-      console.log(wordBlocks);
       autoCamera = new AutoCamera(p5, blocks, canvasW, canvasH);
       zoomCamera = new ZoomCamera(p5, canvasW, canvasH);
 
-      console.log("-----------End initial draw------------");
       chorusList = sabi.segments;
       currentChorus = chorusList[chorusIndex];
       prelude = getPrelude(phrases);
       interludes = getInterludes(phrases);
       postlude = getPostlude(blocks);
-      console.log(prelude);
-      console.log("間奏情報");
-      console.log(interludes);
-      console.log(postlude);
       bgColor = p5.color(0);
       textColor = {'h': 0, 's': 0, 'b': 100};
-
       allDisplayedSize = g.getActiveGridSize(videoEndTime, wordBlocks);
-      console.log(allDisplayedSize);
-      console.log(allDisplayedSize['xleng']['minX']);
-      //const xleng = allDisplayedSize['xleng']
       wordCenterX = ((allDisplayedSize['sizeX'] * globalBlockSize) / 2);
-
       charBlocks = blocks;
 
-      //colorNum = 5;
       const segNum = Math.floor(wordBlocks.length / colorNum);
       let x = 0;
       let textCol = p5.color(0, 0, 100);
       let segIndex = 0;
       let tmpArray = [];
-      console.log(wordBlocks);
       for(const w of wordBlocks) {
         w.enableColor(textCol);
         tmpArray.push(w);
@@ -491,50 +424,28 @@ new P5((p5) => {
       for(const w of tmpArray) {
         colorSegWords[colorSegWords.length - 1].push(w);
       }
-      console.log(colorSegWords);
-
+      console.log("-----------End initial draw------------");
       init = true;
     }
 
     //-----------------------------------------------ここから繰り返しゾーン-----------------------------------------------
     const position = player.timer.position;
-    //if(position > videoEndTime) return;
 
     isPrelude = prelude && (prelude['startTime'] < position) && (position < prelude['endTime']);
     interlude = findInterlude(position, interludes);
     isPostlude = postlude && (postlude['startTime'] < position);
-    //if(videoEndTime <= position) console.log(position);
-    //if(interlude) console.log(interlude);
-    //if(isPrelude || isInterlude || isPostlude) console.log("プレリュード : " + isPrelude + " インタールード : " + isInterlude + " ポストルード : "+isPostlude);
 
     if(!isChorus && chorusIndex < chorusList.length && currentChorus.startTime < position + 500) {
       isChorus = true;
       const res = g.getActiveGridSize(currentChorus.endTime, wordBlocks);
       chorusSize['sizeX'] = res['sizeX'];
       chorusSize['sizeY'] = res['sizeY'];
-      //textColor = {'h': Math.floor(Math.random() * 100), 's': 100, 'b': 100 };
-      console.log("サビです!!!!!!");
     }
     if(isChorus && currentChorus.endTime < position) {
       isChorus = false;
       zoomCamera._isInit = true;
-      //console.log("サビおわたっw");
       chorusIndex++;
       currentChorus = chorusList[chorusIndex];
-      //bgColor = p5.color(0);
-
-    }
-
-    /*
-    if(prelude && prelude['startTime'] < position && position < prelude['endTime']) {
-      bgColor = 255;
-      textColor = p5.color(0, 0, 0);
-    }
-    */
-    if(isChorus) {
-      //bgColor = p5.color(255);
-    } else {
-      //textColor = {'h': 0, 's': 0, 'b': 100 };
     }
 
     p5.background(bgColor);
@@ -559,61 +470,13 @@ new P5((p5) => {
       p5.image(pg, p5.width / 2, p5.height / 2);
       currentBeatPos = beat.position;
     }
-    /*
-    if (beat && beat.position != currentBeatPos) {
-      pg.background(p5.color(0, 0, 100, 50));
-      pg.erase();
-      pg.circle(pg.width / 2, pg.height / 2, pg.width + 100);
-      pg.noErase();
-      p5.image(pg, p5.width / 2, p5.height / 2);
-      currentBeatPos = beat.position;
-    }
-    */
-
-    /*
-    pg.background(p5.color(0, 0, 100));
-    pg.erase();
-    pg.circle(pg.width / 2, pg.height / 2, pg.width + );
-    pg.noErase();
-    p5.image(pg, p5.width / 2, p5.height / 2);
-    */
-
-    /*
-    if(beat) {
-      p5.push();
-      p5.rectMode(p5.CORNER);
-      const progress = beat.progress(position);
-      const alpha = 80 * Ease.quintIn(progress);
-      const size = cameraSize * Ease.quintIn(progress);
-      const x = p5.width * Ease.quintIn(progress);
-      p5.fill(60, 100, 100, alpha);
-      p5.noStroke();
-      //p5.strokeWeight(5);
-      //p5.stroke(80, 100, 100, alpha);
-      const offset = 200;
-      const x1 = (p5.width / 2 - offset) * Ease.quintIn(progress);
-      p5.rect(0, 0, (p5.width / 2 - offset) - x1, p5.height);
-      p5.rect((p5.width / 2 + offset) + x1, 0, (p5.width / 2 - offset) - x1, p5.height);
-      //p5.text("こんちは", p5.width / 2, p5.height / 2);
-      //p5.text(selectedSong['title'], p5.width / 2, p5.height /2 );
-
-      //p5.line(0, p5.height - 20, x, p5.height - 20);
-      //p5.circle(p5.width / 2, p5.height / 2, size);
-      p5.pop();
-    }
-    */
-
 
     if(isPostlude || isVideoEnd) {
       let moveTime;
       if(position) moveTime = p5.min(1, p5.map(videoEndTime - position, 3000, 0, 0, 1));
       else moveTime = 1;
-
-      //console.log(moveTime);
       p5.push();
       p5.noStroke();
-      //p5.blendMode(p5.SCREEN);
-
       if(p5.hue(bgColor) == 0 && p5.saturation(bgColor) == 0 && p5.brightness(bgColor) == 100) p5.fill(0, 0, 0, 100 * Ease.quintIn(moveTime));
       else p5.fill(0, 0, 100, 100 * Ease.quintIn(moveTime));
 
@@ -625,43 +488,6 @@ new P5((p5) => {
       p5.text(selectedSong['artist'], p5.width / 2, p5.height / 2 + size / 2 + artistSize / 2);
       p5.pop();
     }
-
-    //カメラ移動
-    /*
-    if(p5.mouseIsPressed) {
-      //console.log("タッチされました" + "worldCameraX is "+worldCamera.pos.x+"  mouseX is "+p5.mouseX);
-      worldCamera.posX = p5.mouseX;
-      worldCamera.posY = p5.mouseY;
-    }
-    */
-
-    /*
-    p5.translate(-worldCamera.posX, -worldCamera.posY);
-    p5.scale(worldCamera.zoom);
-    */
-
-    /*
-    if(yarimasuta) {
-      const res = g.getActiveGridSize(currentChorus.endTime, wordBlocks);
-      console.log(res);
-      yarimasuta = false;
-    }
-    */
-
-    /*
-    let txt = "";
-    let segCount = 0;
-    for(const s of songInfo) {
-      for(let i = 0; i < s.segments.length; i++) {
-        if(s.segments[i].startTime < position && position < s.segments[i].endTime) {
-          txt = 'セグメンツ ['+segCount+']の';
-          txt = txt + '['+i+']　番目の要素です。';
-        }
-      }
-      segCount++;
-    }
-    console.log(txt);
-    */
 
     //-----------------------------------------------ここからカメラゾーン-----------------------------------------------
     if(!interlude) {
@@ -691,8 +517,6 @@ new P5((p5) => {
       p5.scale(zoomCamera.zoom);
       p5.translate(-zoomCamera.x, -zoomCamera.y);
     }
-    //console.log("position : " + position + "  camera x : "+autoCamera._x+ "  y : "+ autoCamera._y);
-
 
     if(isPostlude) {
       isVideoEnd = true;
@@ -712,26 +536,19 @@ new P5((p5) => {
               char.displayChorusText();
             }
           }
-
           if(char._isVanished) continue;
-          //char._col =p5.color(p5.hue(textColorArray[0]), p5.saturation(textColorArray[0]), p5.brightness(textColorArray[0]));
           if(char._isDisplayed) {
             if(char._isChangingCol) {
               char.update_changingCol(position);
-              //char.display_changingCol();
             }
             char.displayText();
-            //char.update();
           } else if(char._startTime < position + time_fadein) {
-            //char._col = p5.color(textColor['h'], textColor['s'], textColor['b']);
             char.update_fadein(position);
             char.displayText();
           }
-
         }
       }
     }
-
 
     for(const b of balls) {
       if(interlude && beat || isPostlude && beat) {
@@ -741,18 +558,12 @@ new P5((p5) => {
       }
     }
 
-    //g.displayPoint();
-    //drawGrid(p5, canvasW, canvasH);
-
   };
 
   p5.mouseReleased = () => {
-    //if(player.isPlaying && !isBgChanging && !isTextChanging) {
     if(player.isPlaying && isChorus || player.isPlaying && isPostlude) {
-
       const randInt = Math.floor(Math.random() * bgChangePattern.length);
       mt = bgChangePattern[randInt];
-      //mt = bgChange5;
       bgChangeStartTime = player.timer.position;
       if(Date.now() - mousePressStartTime > 1000) {
         if(p5.hue(bgColor) == 0 && p5.saturation(bgColor) == 0 && p5.brightness(bgColor) == 0) distBgCol = p5.color(0, 0, 100);
@@ -769,24 +580,18 @@ new P5((p5) => {
 
     if(!player.isPlaying) return;
     if(isChorus || isPostlude) return;
-    console.log('マウス位置 : ' + p5.mouseX + ' / ' + p5.mouseY);
     const posX = p5.mouseX + (autoCamera._x - (cameraSize / 2));
     const posY = p5.mouseY + (autoCamera._y - (cameraSize / 2));
-    console.log('キャリブレ後 : ' + posX + ' / ' + posY);
     const selectGridPos = [Math.floor(posY / globalBlockSize), Math.floor(posX / globalBlockSize)];
-    console.log('グリッドポジション : ' + selectGridPos[1] + ' / ' + selectGridPos[0]);
-    //クリック位置から該当するブロックオブジェクトを探索
     for(const w of wordBlocks) {
       for(const pos of w._posInGrid) {
         if(pos.toString() === selectGridPos.toString() && w._isVisible) {
           console.log(w.getText);
           const resultWords = findWordSeg(w);
-          //if(!resultWords) return;
           const distTextColor = p5.color(Math.floor(Math.random() * 100), 100, 100);
           for(const w of resultWords) {
             w.changeColor(player.timer.position, distTextColor);
           }
-          //isTextChanging = true;
           return;
         }
       }
@@ -816,19 +621,10 @@ new P5((p5) => {
       }
     }
   }
-  /*
-  p5.keyPressed = (key) => {
-    worldCamera.draw(key.key);
-  };
-
-  p5.mouseDragged = () => {
-    worldCamera.posX = p5.mouseX;
-    worldCamera.posY = p5.mouseY;
-  };
-  */
 
 });
 
+/*
 class Camera {
   constructor(p5, canvasW, canvasH) {
     this.p5 = p5;
@@ -859,6 +655,7 @@ class Camera {
     this.pos.y += num - this.pos.y;
   }
 }
+*/
 
 class ZoomCamera {
   constructor(p5, canvasW, canvasH) {
@@ -868,7 +665,6 @@ class ZoomCamera {
     this._x = 0;
     this._y = 0;
     this._zoom = 0;
-
     this.isInit = true;
     this.distScale = 0;
     this.distX = 0;
@@ -876,7 +672,6 @@ class ZoomCamera {
     this.startTime = 0;
     this.endTime = 0;
     this.preScale = 1;
-
     this.zoomInit = false;
   }
 
@@ -894,36 +689,24 @@ class ZoomCamera {
   updateChorus(size) {
     const xsize = cameraSize / (size['sizeX'] * globalBlockSize) * 1;
     const ysize = cameraSize / (size['sizeY'] * globalBlockSize) * 1;
-    //console.log('sizeX : ' + size['sizeX'] + '  sizeY : ' + size['sizeY']);
-    //console.log('xsize : ' + xsize + '  ysize : ' + ysize);
-
     const scale = xsize < ysize ? xsize : ysize;
-    //console.log('スケール' + scale);
     this._zoom = scale;
     this._x = (canvasW / 2) - ((size['sizeX'] * globalBlockSize) / 2);
     this._y = (canvasH / 2) - ((size['sizeY'] * globalBlockSize) / 2);
-    //console.log(this._x + ' / ' + this._y);
-    //console.log(window.innerWidth + ' / ' + window.innerHeight);
   }
 
   update(position) {
-    //if(position - this.startTime >= 500) return;
     this.moveTime = Math.min(1, this.p.map(position - this.startTime, 0, 500, 0, 1));
-    //this.moveTime = (position - this.startTime) / 500;
     this._x = this.preX + (this.distX - this.preX) * Ease.quintOut(this.moveTime);
     this._y = this.preY + (this.distY - this.preY) * Ease.quintOut(this.moveTime);
     this._zoom = 1 - ( (1 - this.distScale) * Ease.quintOut(this.moveTime) );
-    //console.log('moveTime : '+this.moveTime+' x : '+this._x+' y : '+this._y+' zoom : '+this._zoom);
   }
 
   update_postlude(position) {
-    //if(position - this.startTime >= 1000) return;
     this.moveTime = Math.min(1, this.p.map(position - this.startTime, 0, 1000, 0, 1));
-    //this.moveTime = (position - this.startTime) / 1000;
     this._x = this.preX + (this.distX - this.preX) * Ease.quintOut(this.moveTime);
     this._y = this.preY + (this.distY - this.preY) * Ease.quintOut(this.moveTime);
     this._zoom = 1 - ( (1 - this.distScale) * Ease.quintOut(this.moveTime) );
-    //console.log('moveTime : '+this.moveTime+' x : '+this._x+' y : '+this._y+' zoom : '+this._zoom);
   }
 
   setInit(preX, preY, size, startTime, endTime) {
@@ -938,8 +721,6 @@ class ZoomCamera {
     this.startTime = startTime;
     this.endTime = endTime;
     this.isInit = false;
-    console.log("This is setInit /  preX : "+this.preX+" preY : "+this.preY+" distScale : "+this.distScale+ " distX : "+this.distX + " distY : "+this.distY+" startTime : "+this.startTime + " endTime : "+this.endTime);
-    console.log("cameraSize : "+cameraSize+" sizeX : " + size['sizeX'] + " sizeY : "+size['sizeY']);
   }
 
   get x() {
@@ -957,7 +738,6 @@ class ZoomCamera {
   get _zoomInit() {
     return this.zoomInit;
   }
-
   set _isInit(bool) {
     this.isInit = bool;
   }
@@ -976,49 +756,37 @@ class AutoCamera {
     this.distX;
     this.distY;
     this.distSet();
-    console.log(this.distX+"  /  " +this.distY);
     this.preX = this.x;
     this.preY = this.y;
-    //this.preX = canvasW / 2;
-    //this.preY = canvasH / 2;
-
     this.startTime = 0;
     this.moveTime = 0;
     this.stopTime = 0;
     this.isMove = true;
     this.angle = 0;
     this.moveLimit = this.block[this.index].startTime;
-    console.log("limit is " + this.moveLimit);
     this.isEnd = false;
     this.quickMove = false;
-
     this.isInit = false;
     this.angle = 0;
     this.preAngle = 0;
     this.distAngle = 0;
-
     this.interludeSeg = [];
     this.currentInterludeSegIndex = 0;
     this.endInterlude = false;
   }
 
-
-
   init_interlude(position, interlude, displayedWords, duration = 3000) {
     this.interludeSeg = [];
     this.currentInterludeSegIndex = 0;
     this.endInterlude = false;
-
     const interludeTime = interlude['endTime'] - interlude['startTime'];
     const interludeSegNum = interludeTime / duration;
     let remainTime = 0;
     for(let i = 0; i < Math.floor(interludeSegNum); i++) {
       const index = Math.floor(Math.random() * displayedWords.length);
       if(i == interludeSegNum - 1) remainTime = interludeTime % duration;
-      console.log(remainTime);
       this.interludeSeg.push( { "startTime": interlude['startTime'] + i * duration, "endTime": interlude['startTime'] + duration + (duration * i) + remainTime, "posX": displayedWords[index]._posX, "posY": displayedWords[index]._posY } );
     }
-
     this.preX = this.x;
     this.preY = this.y;
     this.distX = this.interludeSeg[0]["posX"];
@@ -1029,48 +797,13 @@ class AutoCamera {
     this.isInit = true;
   }
 
-  /*
-  init_interlude(position, interlude, displayedWords) {
-    const index = Math.floor(Math.random() * displayedWords.length);
-    console.log(index);
-    console.log(displayedWords);
-    this.distX = displayedWords[index]._posX;
-    this.distY = displayedWords[index]._posY;
-    this.preX = this.x;
-    this.preY = this.y;
-    this.startTime = interlude['startTime'];
-    //this.endTime = interlude['endTime'];
-    this.moveLimit = interlude['endTime'] - interlude['startTime'];
-    const angle = displayedWords[index]._dir;
-    console.log(displayedWords[index]._dir);
-    switch(angle) {
-      case 'N':
-        this.distAngle = 0;
-        break;
-      case 'S':
-        this.distAngle = 180;
-        break;
-      case 'E':
-        this.distAngle = 90;
-        break;
-      case 'W':
-        this.distAngle = 270;
-        break;
-    }
-    this.isInit = true;
-  }
-  */
-
   update_interlude(position) {
     if(this.endInterlude) return;
-
     this.moveTime = Math.min(1, this.p.map(position - this.startTime, 0, this.moveLimit, 0, 1));
     this.x = this.preX + (this.distX - this.preX) * Ease.quintIn(this.moveTime);
     this.y = this.preY + (this.distY - this.preY) * Ease.quintIn(this.moveTime);
     if(this.moveTime == 1) {
       this.currentInterludeSegIndex++;
-      console.log(this.currentInterludeSegIndex);
-      console.log(this.interludeSeg.length);
       if(this.currentInterludeSegIndex < this.interludeSeg.length) {
         const currentInterlude = this.interludeSeg[this.currentInterludeSegIndex];
         this.preX = this.x;
@@ -1086,49 +819,23 @@ class AutoCamera {
     }
   }
 
-  /*
-  update_interlude(position) {
-    this.moveTime = (position - this.startTime) / this.moveLimit;
-    this.x = this.preX + (this.distX - this.preX) * Ease.quintOut(this.moveTime);
-    this.y = this.preY + (this.distY - this.preY) * Ease.quintOut(this.moveTime);
-    this.angle = this.preAngle + this.distAngle * Ease.quintOut(this.moveTime);
-    //console.log("angle : "+this.angle + "  ( distAngle : "+this.distAngle+" )");
-  }
-  */
-
   update(position, isChorus) {
-    /*
-    if(isChorus) {
-      this._zoom = 0.5;
-      this.x = (this.canvasW / 2) - window.innerWidth;
-      this.y = (this.canvasH / 2) - window.innerHeight;
-      return;
-    }
-    */
     if(position < this.startTime) return;
     if(this.quickMove) {
-      console.log("クイックムーブ！！！")
       this.x = this.block[this.index - 1]._posX;
       this.y = this.block[this.index - 1]._posY;
-      console.log(this.x + "  "+this.y);
       this.quickMove = false;
     } else {
       this.moveTime = (position - this.startTime) / this.moveLimit;
       this.x = this.preX + (this.distX - this.preX) * Ease.quintOut(this.moveTime);
       this.y = this.preY + (this.distY - this.preY) * Ease.quintOut(this.moveTime);
     }
-    //console.log("thisX : "+this.x + "thisY : "+this.y);
     if(position - this.startTime >= this.moveLimit) {
-      //console.log("--------move limit !!!!-----------");
-      //console.log("x  : "+this.x+"  y : "+this.y);
       this.preX = this.x;
       this.preY = this.y;
-
       this.index++;
 
-      //最後の要素
       if(this.index >= this.block.length) {
-        //console.log("伊豆エンド");
         this.isEnd = true;
         return;
       }
@@ -1136,8 +843,6 @@ class AutoCamera {
       this.limitSet();
       this.startTime = this.block[this.index].startTime;
       this.distSet();
-      //console.log("テキスト : " + this.block[this.index]._text);
-      //console.log("startTime : " + this.startTime +"next distX : "+this.distX + " distY : "+this.distY+ "moveLimit : "+this.moveLimit);
     }
   }
 
@@ -1147,15 +852,8 @@ class AutoCamera {
   }
   limitSet() {
     const currentBlock = this.block[this.index];
-    //console.log("EndTime : "+currentBlock.endTime +"  StartTime : "+currentBlock.startTime);
     this.moveLimit = currentBlock.endTime - currentBlock.startTime;
-    /*
-    if(this.moveLimit == 0) {
-      this.quickMove = true;
-    }
-    */
 
-    //movelimitが僅少のときスキップする
     if(this.moveLimit < 31) {
       let limit = 0;
       let tmpIndex = this.index;
@@ -1166,11 +864,7 @@ class AutoCamera {
       }
       this.moveLimit = limit;
       this.index = tmpIndex;
-
-      //console.log("スキップするやで！！")
-      //console.log("preX : "+this.preX+"  preY : "+this.preY+"distX : "+this.block[this.index]._posX + "  distY : "+this.block[this.index]._posY + "  movelimit : "+this.moveLimit);
       this.quickMove = true;
-
     }
   }
 
