@@ -5,7 +5,6 @@ export class PhraseBlock {
     this.p = p;
     this.g = g;
     this.phrase = phrase;
-
     this.wordObArray = new Array();
     this.textArr = new Array();
     this.setArrByPartOfSpeech(phrase);
@@ -19,7 +18,6 @@ export class PhraseBlock {
 
     this.wordBlocks = new Array(this.phraseleng);
     this.col = p.color(Math.floor(Math.random() * 100), 60, 70);
-
     this.displayChildrenCount = 0;
     this.isDisplayAll = false;
     this.makeWordBlock();
@@ -50,7 +48,6 @@ export class PhraseBlock {
     for(const word of words) {
       test += word.text;
       test += word.pos+" | ";
-      //console.log(test);
       let text = word.text;
       const w = new Array();
       if(isA) {
@@ -60,7 +57,7 @@ export class PhraseBlock {
         tempAob = null;
         isA = false;
       }
-      w.push(word); //wordオブジェクトを配列にする
+      w.push(word);
       //助詞(P),助動詞(M)のとき前の要素に追加
       if( (wordObArray[i-1] && word.pos === 'P') || (wordObArray[i-1] && word.pos === 'M') || text === '...') {
         textArray[i-1] += text;
@@ -98,7 +95,6 @@ export class PhraseBlock {
         }
       }
     }
-
     this.textArr = textA;
     this.wordObArray = obA;
   }
@@ -106,13 +102,11 @@ export class PhraseBlock {
   setArrByText() {
     let textA = this.textArr;
     let obA = this.wordObArray;
-
     let startIndex = 0;
     let endIndex = 0;
     let tmpText = "";
     let tmpOb = new Array();
     let isStart = false;
-
     let newA;
     let no;
     for(let i = 0; i < textA.length; i++) {
@@ -140,7 +134,6 @@ export class PhraseBlock {
           endIndex++;
         }
       }
-      //console.log(" i : "+i+" | isStart : "+isStart+" | startIndex : "+startIndex+" | endIndex : "+endIndex+ " | tmpText : "+tmpText);
     }
     this.textArr = textA;
     this.wordObArray = obA;

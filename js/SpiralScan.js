@@ -5,7 +5,6 @@ export class SpiralScan {
     this.d = 1;
     this.isFirst = true;
     this.direct = ['N', 'E', 'S', 'W'];
-    //this.n = (this.w) * (this.h) -1;
     this.x = startX;
     this.y = startY;
   }
@@ -34,7 +33,7 @@ export class SpiralScan {
       this.d++;
     }
   }
-  
+
   get _x() {
     return this.x;
   }

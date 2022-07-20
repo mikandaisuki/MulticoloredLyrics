@@ -5,35 +5,24 @@ import { sizelistTo2Darray_N, sizelistTo2Darray_E, sizelistTo2Darray_W, sizelist
 export class Grid {
   constructor(p, canvasW, canvasH) {
     this.p = p;
-
-    //グリッドの大きさを指定
     this.canvasW = canvasW;
     this.canvasH = canvasH;
-    //グリッドからマス目
     this.w = this.canvasW / 100;
     this.h = this.canvasH / 100;
     this.centerPos = [ Math.floor(this.w / 2), Math.floor(this.h / 2)];
-
-    console.log("center is" + this.centerPos);
     this.grid = new Array(this.h);
     for(let y = 0; y < this.h; y++) {
       this.grid[y] = new Array(this.w).fill(0);
     }
     this.empty = new Array();
     this.setInitFill();
-
     this.spiralScan = new SpiralScan(this.centerPos[0], this.centerPos[1]);
   }
 
   setInitFill() {
     this.grid[this.centerPos[1]][this.centerPos[0]] = 1;
-    //this.printGrid();
     this.deleteZero();
     this.setEmpty();
-    //this.printGrid();
-    //this.searchGrid();
-    //this.printEmpty();
-    //console.log(this.empty);
   }
 
   setFilled(x, y) {
@@ -227,7 +216,6 @@ export class Grid {
     }
     const index = Math.floor(Math.random() * withinPos.length);
     const res = withinPos[index];
-
     return res;
   }
 
@@ -253,24 +241,9 @@ export class Grid {
     hash['W'] = sizelistTo2Darray_W(sizelist);
     hash['S'] = sizelistTo2Darray_S(sizelist);
     return hash;
-
-    /*
-    const arr = new Array();
-    arr.push(sizelistTo2Darray_N(sizelist));
-    console.log("N : "+arr[0]);
-    arr.push(sizelistTo2Darray_E(sizelist));
-    console.log("E : "+arr[1]);
-    arr.push(sizelistTo2Darray_W(arr[1]));
-    console.log("W : "+arr[2]);
-    arr.push(sizelistTo2Darray_S(arr[0]));
-    console.log("S : "+arr[3]);
-    return arr;
-    */
   }
 
   SearchGridBySizeable(text, sizelist) {
-    //console.log("this is testSearchGrid");
-    //console.log(text + ' / ' +sizelist);
     const allAngleArray = this.getAllAngleArray(sizelist);
     let reservedPos = new Array();
     let outerReserve = new Array();
@@ -281,11 +254,8 @@ export class Grid {
       const x = this.spiralScan.x;
       if(y < 0 || y >= this.h ||x < 0 || x >= this.w) continue;
       if(this.grid[y][x] == 3) {
-        //ターゲットを走査
         const used = new Array();
         let rotationList = ['N', 'E', 'W', 'S'];
-        //let rotation;
-
         let num = 0;
         while(num < Object.keys(allAngleArray).length) {
           if(!used.length) rotationList = rotationList.filter(i => used.indexOf(i) == -1);
@@ -298,13 +268,10 @@ export class Grid {
                 let ok = 0;
                 let arr;
                 let isLoop = true;
-
                 if(ty > 0) {
                   tmpY = tmpY - ty;
                 }
-                //reservedPos.splice(0);
                 let reservedPos = new Array();
-
                 while(ok < targetArr.length) {
                   const startPos = x - tx;
                   const endPos = x + (targetArr[ty].length - tx );
@@ -312,11 +279,7 @@ export class Grid {
                   if(endPos > this.w) break;
                   arr = this.grid[ tmpY + ok ].slice(startPos, endPos);
                   if(arr.length == 0)  break;
-                  /*
-                  if(text === '掛け替えの' || text === '鳴り響け'　|| text === 'Memory') {
-                    console.log(text+ " "+arr);
-                  }
-                  */
+
                   for(let n = 0; n < arr.length; n++) {
                     const res = this.isEqual(arr[n], targetArr[ok][n]);
                     if(res == -1) {
@@ -332,15 +295,13 @@ export class Grid {
                   if(!isLoop) break;
                   ok++;
                 }
-                if(ok == targetArr.length) { //入るマスが見つかった状態
+                if(ok == targetArr.length) {
                   if(reservedPos.length == 0) {
                     console.log("から！！！！");
                     console.log(ok);
                     console.log(arr);
                   }
-                  //console.log(reservedPos);
                   const reserved = this.makeAarray(index, reservedPos, text, sizelist);
-                  //outerReserve.push(reserved);
                   return reserved;
                 }
               }
@@ -349,10 +310,8 @@ export class Grid {
           used.push(index);
           num++;
         }
-        //return outerReserve;
       }
     }
-    //return outerReserve;
   }
 
   makeAarray(index, reservedPos, text, sizelist) {
@@ -376,9 +335,6 @@ export class Grid {
   }
 
   sortDataBy(dir, array, sizelist, text) {
-    //console.log("sortDataBy です");
-    //console.log(array);
-    //文字方向によってソート順を変える
     if(dir === 'N') {
       array.sort(function(a, b) {
         return a[1] - b[1];
@@ -396,7 +352,6 @@ export class Grid {
         return b[0] - a[0];
       });
     }
-
     const sizedPos = new Array();
     let increment = 0;
     for(const size of sizelist) {
@@ -405,11 +360,9 @@ export class Grid {
       increment = leng;
     }
     const res = new Array();
-    //連想配列をつくる
     for(let i = 0; i < sizelist.length; i++) {
       res.push({text: text.split('')[i], dir: dir, size: sizelist[i], pos: sizedPos[i]});
     }
-
     return res;
   }
 
@@ -453,7 +406,6 @@ export class Grid {
       }
       let sizeX = 0;
       let sizeY = 0;
-      //中心からの距離が長い方を抽出
       if(Math.abs(this.centerPos[0] - xleng['minX']) < Math.abs(this.centerPos[0] - xleng['maxX'])) {
         sizeX = Math.abs(this.centerPos[0] - xleng['maxX']) * 2;
       } else {
@@ -475,7 +427,6 @@ export class Grid {
         }
       }
     }
-    //this.printActiveGrid(activeGrid);
     return getGridSize(activeGrid);
   }
 

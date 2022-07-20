@@ -7,45 +7,29 @@ export class SizingBlock {
   constructor(p, charOb, size, dir, posArray, col, parent) {
     this.p = p;
     this.charOb = charOb;
-
     this.blockSize = size * globalBlockSize;
     this.char = charOb.text;
     this.posArray = posArray;
     this.posX = 0;
     this.posY = 0;
     this.calcPos();
-
     this.alpha = 0;
-    //this.col;
-    //this.col = col;
     this.col = p.color(0, 0, 100);
-
     this.dir = dir;
     this.parent = parent;
-
     this.startTime = charOb.startTime;
     this.endTime = charOb.endTime;
     this.isDisplayed = false;
     this.displayTime = this.endTime - this.startTime;
-    //console.log(this.char + ' | '+ this.startTime);
-    //console.log(this.posArray);
     this.isChorus;
     this.getIsChorus();
-
-    //this.chorusX = 0;
-    //this.chorusY = 0;
     this.chorusX = Math.floor(Math.random() * 50);
     this.chorusY = Math.floor(Math.random() * 50);
-    //console.log(this.char + " | " + this.isChorus);
-    //this.chorusCol = this.p.color(Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255));
-
     if(!isFinite(this.posX) || !isFinite(this.posY)) {
       console.log("ブロック ["+this.char+"] は異常値です。");
       console.log("ブロック情報 | 文字 : "+this.char+ " posX : "+this.posX+" posY : "+this.posY);
       console.log(this.posArray);
     }
-
-    //this.distRad;
     this.angle;
     switch(this.dir) {
       case 'N':
@@ -62,7 +46,6 @@ export class SizingBlock {
         break;
     }
 
-    //this.distRad = p.radians(this.angle);
     this.preAngle = this.angle - 90;
     this.rad = 0;
     this.isSetChorusPos = false;
@@ -72,9 +55,7 @@ export class SizingBlock {
     this.alpha_chorus = 0;
     this.col_chorus = p.color(100, 0, 100);
     this.col_chorusOut = p.color(Math.floor(Math.random() * 100), 100, 100);
-    //console.log("ブロックpos : " + this.posX + " / "+ this.posY);
     this.isVanished = false;
-
     this.isVisible = false;
     this.isChangingCol = false;
     this.newCol;
@@ -86,31 +67,20 @@ export class SizingBlock {
     const progress = 1 - (this.startTime - position) / time_fadein;
     const eased = Ease.quintIn(progress);
     this.alpha = 100 * eased;
-    //this.col = p.color(255, 0, 0, this.alpha);
     this.col.setAlpha(this.alpha);
     let r = 90 * eased;
     r = p.constrain(r, 0, 90);
     const a = this.preAngle + r;
     this.angle = a;
-    //this.rad = p.radians(a);
-
-    //console.log(this.char + " / " + progress + ' : ' + eased + ' : ' + this.alpha);
-    //console.log(this.char + " / " + progress + ' : ' + this.preAngle + ' : ' + r);
     this.isVisible = true;
     if(progress > 1) this.isDisplayed = true;
-  }
-
-  update_fadeout(position) {
-
   }
 
   displayText() {
     const p = this.p;
     p.textSize(this.blockSize);
     p.push();
-
     p.blendMode(p.DIFFERENCE);
-
     p.translate(this.posX, this.posY);
     p.rotate(this.angle);
     p.noStroke();
@@ -121,7 +91,6 @@ export class SizingBlock {
     }
     p.text(this.char, 0, 0);
     p.pop();
-    //this.isDisplayed = true;
   }
 
   calcPos() {
@@ -157,11 +126,8 @@ export class SizingBlock {
     const p = this.p;
     const progress = 1 - (this.startTime - position) / 500;
     const eased = Ease.quintIn(progress);
-    //this.size_chorus = 1200 * eased;
     const al = 100 * eased;
     this.col_chorus.setAlpha(100 * eased);
-    //console.log(this.col_chorus);
-    //if(progress > 1) this.col_chorus = this.col_chorusOut;
   }
 
   displayChorusText() {
@@ -173,29 +139,15 @@ export class SizingBlock {
     p.noStroke();
     p.fill(this.col_chorus);
     p.text(this.char, 0, 0);
-
-    //p.blendMode(p.HARD_LIGHT);
-    /*
-    p.fill(p.color(20, 80, 100, 80));
-    p.text(this.char, this.chorusX, 20);
-    p.fill(p.color(50, 80, 100, 80));
-    p.text(this.char, -20, -this.chorusY);
-    */
-
     p.pop();
-    //this.isDisplayed = true;
   }
 
   updateChorus_fadeOut(position) {
     const p = this.p;
     const progress = 1 - (position - this.endTime) / 500;
     const eased = Ease.quintIn(progress);
-    //this.size_chorus = 1200 * eased;
     const al = 100 - 100 * eased;
-    //this.col_chorus = this.col_chorusOut;
     this.col_chorus.setAlpha(al);
-    console.log(al);
-
   }
 
   setChorusPos(sizeX, sizeY) {
@@ -204,10 +156,8 @@ export class SizingBlock {
     const maxX = (canvasW / 2) + ((sizeX * globalBlockSize) / 2) - (this.size_chorus / 2);
     const minY = (canvasH / 2) - ((sizeY * globalBlockSize) / 2) + (this.size_chorus / 2);
     const maxY = (canvasH / 2) + ((sizeY * globalBlockSize) / 2) - (this.size_chorus / 2);
-    //console.log('sizeX : '+sizeX+' sizeY : '+sizeY+' / minX : '+minX+' maxX : '+maxX);
     this.posX_chorus = Math.floor(Math.random() * (maxX - minX) + minX);
     this.posY_chorus = Math.floor(Math.random() * (maxY - minY) + minY);
-    //console.log(this.posX_chorus + ' / '+this.posY_chorus);
     this.isSetChorusPos = true;
   }
 
@@ -219,21 +169,6 @@ export class SizingBlock {
       this.col = this.newCol;
       this.isChangingCol = false;
     }
-  }
-
-  display_changingCol(position) {
-
-    /*
-    p.textSize(this.blockSize);
-    p.push();
-    p.blendMode(p.DIFFERENCE);
-    p.translate(this.posX, this.posY);
-    p.rotate(this.angle);
-    p.noStroke();
-    p.fill(this.newCol);
-    p.text(this.char, 0, 0);
-    p.pop();
-    */
   }
 
   get _text() {

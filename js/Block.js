@@ -10,14 +10,8 @@ export class Block {
     this.col = col;
     this.char = char;
     this.parent = parent;
-    //console.log("-----this is Block-----");
     this.startTime = charOb.startTime;
     this.endTime = charOb.endTime;
-/*
-    console.log(char);
-    console.log("startTime : " + this.startTime);
-    console.log("endTime : " + this.endTime);
-    */
     this.isDisplayed = false;
   }
 

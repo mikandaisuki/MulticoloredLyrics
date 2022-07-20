@@ -8,7 +8,6 @@ export const drawGrid = (p, width, height) => {
   for (let i = 0; i <  row; i++) {
     p.line(i * size, 0, i * size, col * size);
   }
-
   for (let i = 0; i < col; i++) {
     p.line(0, i * size, row * size, i * size);
   }
@@ -23,10 +22,8 @@ export const sizelistTo2Darray_N = sizelist => {
   for(let y = 0; y < yleng; y++) {
     res[y] = new Array();
   }
-
   for(let y = 0; y < yleng; y++) {
     for(let i = 0; i < sizelist.length; i++) {
-      //const insertNum = 0;
       let insertNum = 0;
       if((res.length - y) <= sizelist[i]) insertNum = 5;
       let count = 0;
@@ -43,12 +40,10 @@ export const sizelistTo2Darray_N = sizelist => {
 export const sizelistTo2Darray_E = sizelist => {
   const yleng = sizelist.reduce((sum, num) => sum + num, 0);
   const xleng = Math.max(...sizelist);
-
   const res = new Array(yleng);
   for(let y = 0; y < yleng; y++) {
     res[y] = new Array();
   }
-
   let col = 0;
   for(let i = 0; i < sizelist.length; i++) {
     const num = sizelist[i];
@@ -69,7 +64,6 @@ export const sizelistTo2Darray_E = sizelist => {
 //col right
 export const sizelistTo2Darray_W = sizelist => {
   const arr = sizelistTo2Darray_E(sizelist);
-  //const arr = sizelist_E;
   for(let i of arr) {
     i.reverse();
   }
@@ -80,7 +74,6 @@ export const sizelistTo2Darray_W = sizelist => {
 //row top
 export const sizelistTo2Darray_S = sizelist => {
   const arr = sizelistTo2Darray_N(sizelist);
-  //const arr = sizelist_N;
   for(let i of arr) {
     i.reverse();
   }

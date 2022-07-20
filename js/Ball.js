@@ -10,9 +10,6 @@ export class Ball {
     this.s = p.random(70, 100);
     this.b = p.random(80, 100);
     this.a = p.random(p.random(100));
-    //this.col = p.color(this.h, this.s, this.b);
-    //this.col.setAlpha(p.random(p.random(100)));
-
     this.num = 3;
     this.posXarray = [];
     this.posYarray = [];
@@ -45,10 +42,8 @@ export class Ball {
       this.p.noStroke();
       this.p.fill(this.h, this.s, this.b, this.a + 10 * progress);
       this.p.circle(this.posXarray[i], this.posYarray[i], this.sizeArray[i] + 10 * progress);
-      //this.p.circle(this.posXarray[i], this.posYarray[i], this.sizeArray[i]);
-
       this.p.pop();
     }
   }
-
+  
 }

@@ -11,7 +11,6 @@ export class Empty {
     this.key_row_poses.push(this.initPos);
     this.key_col_poses = new Array();
     this.key_col_poses.push(this.initPos);
-
     this.rowleng = 0;
     this.colleng = 0;
   }
