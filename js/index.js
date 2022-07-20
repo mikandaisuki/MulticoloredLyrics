@@ -48,7 +48,6 @@ function onVideoReady(v){
   phrases = player.video.phrases;
   songInfo = player.data.songMap.segments;
   for(const element of player.data.songMap.segments){
-    segments_contenst = segments_contenst + String(element.chorus) + "(" + String(element.duration) + " [ms]), ";
     if(element.chorus) {
       sabi = element;
       chorus = sabi.segments;
