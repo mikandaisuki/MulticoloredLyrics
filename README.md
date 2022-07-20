@@ -1,8 +1,11 @@
 # Multicolored Lyrics
-初音ミク「マジカルミライ 2021」 プログラミング・コンテスト応募作品
+
+![スクリーンショット 2022-07-20 21 18 36](https://user-images.githubusercontent.com/10074877/179980507-f436a8ca-63c0-4534-ae3d-1d2eba671446.png)
 
 
 ## デモ
+
+https://darling-fairy-c6cd27.netlify.app
 
 ## 概要
 * TextAliveAppAPI + P5.jsを使ったリリックアプリです。
