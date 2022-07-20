@@ -26,7 +26,8 @@ export const sizelistTo2Darray_N = sizelist => {
 
   for(let y = 0; y < yleng; y++) {
     for(let i = 0; i < sizelist.length; i++) {
-      const insertNum = 0;
+      //const insertNum = 0;
+      let insertNum = 0;
       if((res.length - y) <= sizelist[i]) insertNum = 5;
       let count = 0;
       while(count < sizelist[i]) {

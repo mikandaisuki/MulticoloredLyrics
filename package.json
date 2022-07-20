@@ -2,14 +2,20 @@
   "name": "hellojs",
   "version": "1.0.0",
   "description": "token: \"6rquYSfCRiWlgifb\"",
-  "main": "./js/index.js",
   "scripts": {
-    "dev": "parcel index.html"
+    "dev": "parcel index.html",
+    "build": "parcel build index.html"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "textalive-app-api": "^0.3.2"
+  },
+  "devDependencies": {
+    "cssnano": "^5.1.12",
+    "parcel": "^2.6.2",
+    "postcss": "^8.4.14",
+    "process": "^0.11.10"
   }
 }

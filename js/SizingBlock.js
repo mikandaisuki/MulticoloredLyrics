@@ -1,8 +1,7 @@
 import { chorus } from './index.js';
 import { canvasW, canvasH } from './index.js';
 import { globalBlockSize, time_fadein, time_fadeout } from './index.js';
-const { Ease } = TextAliveApp;
-
+import { Ease } from "textalive-app-api";
 
 export class SizingBlock {
   constructor(p, charOb, size, dir, posArray, col, parent) {

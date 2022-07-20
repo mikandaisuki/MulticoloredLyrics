@@ -1,4 +1,4 @@
-const { Ease } = TextAliveApp;
+import { Ease } from "textalive-app-api";
 
 export class Ball {
   constructor(p, x, y) {

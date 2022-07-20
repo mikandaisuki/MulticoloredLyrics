@@ -617,7 +617,6 @@ new P5((p5) => {
 		p5.colorMode(p5.HSB, 100);
 		p5.angleMode(p5.DEGREES);
 		p5.frameRate(60);
-		worldCamera = new Camera(p5, canvasW, canvasH);
 		pg = p5.createGraphics(cameraSize, cameraSize);
 
     init = false;
@@ -983,7 +982,7 @@ new P5((p5) => {
 	p5.mousePressed = () => {
 		mousePressStartTime = Date.now();
 
-		//if(!player.isPlaying) return;
+		if(!player.isPlaying) return;
 		if(isChorus || isPostlude) return;
 		console.log('マウス位置 : ' + p5.mouseX + ' / ' + p5.mouseY);
 		const posX = p5.mouseX + (autoCamera._x - (cameraSize / 2));
