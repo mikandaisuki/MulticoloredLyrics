@@ -17,6 +17,7 @@ export class SizingBlock {
     this.calcPos();
 
     this.alpha = 0;
+    //this.col;
     //this.col = col;
     this.col = p.color(0, 0, 100);
 
@@ -74,6 +75,11 @@ export class SizingBlock {
     this.col_chorusOut = p.color(Math.floor(Math.random() * 100), 100, 100);
     //console.log("ブロックpos : " + this.posX + " / "+ this.posY);
     this.isVanished = false;
+
+    this.isVisible = false;
+    this.isChangingCol = false;
+    this.newCol;
+    this.startChangeTime = 0;
   }
 
   update_fadein(position) {
@@ -91,7 +97,7 @@ export class SizingBlock {
 
     //console.log(this.char + " / " + progress + ' : ' + eased + ' : ' + this.alpha);
     //console.log(this.char + " / " + progress + ' : ' + this.preAngle + ' : ' + r);
-
+    this.isVisible = true;
     if(progress > 1) this.isDisplayed = true;
   }
 
@@ -109,7 +115,11 @@ export class SizingBlock {
     p.translate(this.posX, this.posY);
     p.rotate(this.angle);
     p.noStroke();
-    p.fill(this.col);
+    if(this.isChangingCol) {
+      p.fill(this.newCol);
+    } else {
+      p.fill(this.col);
+    }
     p.text(this.char, 0, 0);
     p.pop();
     //this.isDisplayed = true;
@@ -202,6 +212,31 @@ export class SizingBlock {
     this.isSetChorusPos = true;
   }
 
+  update_changingCol(position) {
+    const p = this.p;
+    const progress = Math.min(1, p.map(position - this.startChangeTime, 0, 500, 0, 1));
+    this.newCol.setAlpha(100 * Ease.quintIn(progress));
+    if(progress == 1) {
+      this.col = this.newCol;
+      this.isChangingCol = false;
+    }
+  }
+
+  display_changingCol(position) {
+
+    /*
+    p.textSize(this.blockSize);
+    p.push();
+    p.blendMode(p.DIFFERENCE);
+    p.translate(this.posX, this.posY);
+    p.rotate(this.angle);
+    p.noStroke();
+    p.fill(this.newCol);
+    p.text(this.char, 0, 0);
+    p.pop();
+    */
+  }
+
   get _text() {
     return this.char;
   }
@@ -232,11 +267,28 @@ export class SizingBlock {
   get _isVanished() {
     return this.isVanished;
   }
+  get _col() {
+    return this.col;
+  }
   set _col(col) {
-    this.col = col;
+    this.col = this.p.color( this.p.hue(col), this.p.saturation(col), this.p.brightness(col) );
   }
   set _isVanished(bool) {
     this.isVanished = bool;
   }
-
+  get _isVisible() {
+    return this.isVisible;
+  }
+  set _isChangingCol(bool) {
+    this.isChangingCol = bool;
+  }
+  set _newCol(col) {
+    this.newCol = this.p.color( this.p.hue(col), this.p.saturation(col), this.p.brightness(col) );
+  }
+  set _startChangeTime(position) {
+    this.startChangeTime = position;
+  }
+  get _isChangingCol() {
+    return this.isChangingCol;
+  }
 }

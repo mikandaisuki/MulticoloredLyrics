@@ -475,7 +475,7 @@ export class Grid {
         }
       }
     }
-    this.printActiveGrid(activeGrid);
+    //this.printActiveGrid(activeGrid);
     return getGridSize(activeGrid);
   }
 

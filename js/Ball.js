@@ -9,8 +9,9 @@ export class Ball {
     this.h = p.random(100);
     this.s = p.random(70, 100);
     this.b = p.random(80, 100);
-    this.col = p.color(this.h, this.s, this.b);
-    this.col.setAlpha(p.random(p.random(100)));
+    this.a = p.random(p.random(100));
+    //this.col = p.color(this.h, this.s, this.b);
+    //this.col.setAlpha(p.random(p.random(100)));
 
     this.num = 3;
     this.posXarray = [];
@@ -22,8 +23,9 @@ export class Ball {
       this.sizeArray.push(p.random(100, 300));
     }
   }
+
   update(beatProgress) {
-    const alpha = this.b + 100 * Ease.quintIn(beatProgress);
+    const alpha = this.b + (100 - this.b) * Ease.quintIn(beatProgress);
     this.col = this.p.color(this.h, this.s, alpha);
   }
 
@@ -36,13 +38,15 @@ export class Ball {
     this.p.pop();
   }
 
-  drawMulti() {
+  drawMulti(progress = 0) {
     for(let i = 0; i < this.num; i++) {
       this.p.push();
       this.p.blendMode(this.p.LIGHTEST);
       this.p.noStroke();
-      this.p.fill(this.col);
-      this.p.circle(this.posXarray[i], this.posYarray[i], this.sizeArray[i]);
+      this.p.fill(this.h, this.s, this.b, this.a + 10 * progress);
+      this.p.circle(this.posXarray[i], this.posYarray[i], this.sizeArray[i] + 10 * progress);
+      //this.p.circle(this.posXarray[i], this.posYarray[i], this.sizeArray[i]);
+
       this.p.pop();
     }
   }

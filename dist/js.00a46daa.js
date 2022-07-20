@@ -14112,14 +14112,14 @@ var Grid = /*#__PURE__*/function () {
               _iterator6.f();
             }
           }
-        }
+        } //this.printActiveGrid(activeGrid);
+
       } catch (err) {
         _iterator5.e(err);
       } finally {
         _iterator5.f();
       }
 
-      this.printActiveGrid(activeGrid);
       return getGridSize(activeGrid);
     }
   }, {
@@ -14180,7 +14180,8 @@ var SizingBlock = /*#__PURE__*/function () {
     this.posX = 0;
     this.posY = 0;
     this.calcPos();
-    this.alpha = 0; //this.col = col;
+    this.alpha = 0; //this.col;
+    //this.col = col;
 
     this.col = p.color(0, 0, 100);
     this.dir = dir;
@@ -14238,6 +14239,10 @@ var SizingBlock = /*#__PURE__*/function () {
     this.col_chorusOut = p.color(Math.floor(Math.random() * 100), 100, 100); //console.log("ブロックpos : " + this.posX + " / "+ this.posY);
 
     this.isVanished = false;
+    this.isVisible = false;
+    this.isChangingCol = false;
+    this.newCol;
+    this.startChangeTime = 0;
   }
 
   _createClass(SizingBlock, [{
@@ -14256,6 +14261,7 @@ var SizingBlock = /*#__PURE__*/function () {
       //console.log(this.char + " / " + progress + ' : ' + eased + ' : ' + this.alpha);
       //console.log(this.char + " / " + progress + ' : ' + this.preAngle + ' : ' + r);
 
+      this.isVisible = true;
       if (progress > 1) this.isDisplayed = true;
     }
   }, {
@@ -14271,7 +14277,13 @@ var SizingBlock = /*#__PURE__*/function () {
       p.translate(this.posX, this.posY);
       p.rotate(this.angle);
       p.noStroke();
-      p.fill(this.col);
+
+      if (this.isChangingCol) {
+        p.fill(this.newCol);
+      } else {
+        p.fill(this.col);
+      }
+
       p.text(this.char, 0, 0);
       p.pop(); //this.isDisplayed = true;
     }
@@ -14389,6 +14401,33 @@ var SizingBlock = /*#__PURE__*/function () {
       this.isSetChorusPos = true;
     }
   }, {
+    key: "update_changingCol",
+    value: function update_changingCol(position) {
+      var p = this.p;
+      var progress = Math.min(1, p.map(position - this.startChangeTime, 0, 500, 0, 1));
+      this.newCol.setAlpha(100 * Ease.quintIn(progress));
+
+      if (progress == 1) {
+        this.col = this.newCol;
+        this.isChangingCol = false;
+      }
+    }
+  }, {
+    key: "display_changingCol",
+    value: function display_changingCol(position) {
+      /*
+      p.textSize(this.blockSize);
+      p.push();
+      p.blendMode(p.DIFFERENCE);
+      p.translate(this.posX, this.posY);
+      p.rotate(this.angle);
+      p.noStroke();
+      p.fill(this.newCol);
+      p.text(this.char, 0, 0);
+      p.pop();
+      */
+    }
+  }, {
     key: "_text",
     get: function get() {
       return this.char;
@@ -14443,8 +14482,34 @@ var SizingBlock = /*#__PURE__*/function () {
     }
   }, {
     key: "_col",
+    get: function get() {
+      return this.col;
+    },
     set: function set(col) {
-      this.col = col;
+      this.col = this.p.color(this.p.hue(col), this.p.saturation(col), this.p.brightness(col));
+    }
+  }, {
+    key: "_isVisible",
+    get: function get() {
+      return this.isVisible;
+    }
+  }, {
+    key: "_isChangingCol",
+    get: function get() {
+      return this.isChangingCol;
+    },
+    set: function set(bool) {
+      this.isChangingCol = bool;
+    }
+  }, {
+    key: "_newCol",
+    set: function set(col) {
+      this.newCol = this.p.color(this.p.hue(col), this.p.saturation(col), this.p.brightness(col));
+    }
+  }, {
+    key: "_startChangeTime",
+    set: function set(position) {
+      this.startChangeTime = position;
     }
   }]);
 
@@ -14847,6 +14912,62 @@ var WordBlock = /*#__PURE__*/function () {
       this.posInGrid = posInGrid;
     }
   }, {
+    key: "enableColor",
+    value: function enableColor(col) {
+      var _iterator12 = _createForOfIteratorHelper(this.blocks),
+          _step12;
+
+      try {
+        for (_iterator12.s(); !(_step12 = _iterator12.n()).done;) {
+          var b = _step12.value;
+          b._col = col;
+        }
+      } catch (err) {
+        _iterator12.e(err);
+      } finally {
+        _iterator12.f();
+      }
+    }
+  }, {
+    key: "changeColor",
+    value: function changeColor(position, col) {
+      //console.log("ちぇんんんんん");
+      var _iterator13 = _createForOfIteratorHelper(this.blocks),
+          _step13;
+
+      try {
+        for (_iterator13.s(); !(_step13 = _iterator13.n()).done;) {
+          var b = _step13.value;
+          b._isChangingCol = true;
+          b._newCol = col;
+          b._startChangeTime = position;
+        }
+      } catch (err) {
+        _iterator13.e(err);
+      } finally {
+        _iterator13.f();
+      }
+    }
+  }, {
+    key: "_isVisible",
+    get: function get() {
+      var _iterator14 = _createForOfIteratorHelper(this.blocks),
+          _step14;
+
+      try {
+        for (_iterator14.s(); !(_step14 = _iterator14.n()).done;) {
+          var b = _step14.value;
+          if (b._isVisible) return true;
+        }
+      } catch (err) {
+        _iterator14.e(err);
+      } finally {
+        _iterator14.f();
+      }
+
+      return false;
+    }
+  }, {
     key: "_posInGrid",
     get: function get() {
       return this.posInGrid;
@@ -15153,8 +15274,9 @@ var Ball = /*#__PURE__*/function () {
     this.h = p.random(100);
     this.s = p.random(70, 100);
     this.b = p.random(80, 100);
-    this.col = p.color(this.h, this.s, this.b);
-    this.col.setAlpha(p.random(p.random(100)));
+    this.a = p.random(p.random(100)); //this.col = p.color(this.h, this.s, this.b);
+    //this.col.setAlpha(p.random(p.random(100)));
+
     this.num = 3;
     this.posXarray = [];
     this.posYarray = [];
@@ -15170,7 +15292,7 @@ var Ball = /*#__PURE__*/function () {
   _createClass(Ball, [{
     key: "update",
     value: function update(beatProgress) {
-      var alpha = this.b + 100 * Ease.quintIn(beatProgress);
+      var alpha = this.b + (100 - this.b) * Ease.quintIn(beatProgress);
       this.col = this.p.color(this.h, this.s, alpha);
     }
   }, {
@@ -15186,12 +15308,15 @@ var Ball = /*#__PURE__*/function () {
   }, {
     key: "drawMulti",
     value: function drawMulti() {
+      var progress = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
       for (var i = 0; i < this.num; i++) {
         this.p.push();
         this.p.blendMode(this.p.LIGHTEST);
         this.p.noStroke();
-        this.p.fill(this.col);
-        this.p.circle(this.posXarray[i], this.posYarray[i], this.sizeArray[i]);
+        this.p.fill(this.h, this.s, this.b, this.a + 10 * progress);
+        this.p.circle(this.posXarray[i], this.posYarray[i], this.sizeArray[i] + 10 * progress); //this.p.circle(this.posXarray[i], this.posYarray[i], this.sizeArray[i]);
+
         this.p.pop();
       }
     }
@@ -15321,14 +15446,13 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 
 var P5 = p5; //const { Player, Ease } = TextAliveApp;
 
-console.log(_SONG.SONG);
 var text;
 var isAppReady = false;
 var init = false;
 var isVideoReady = false;
 var videoEndTime;
-var isTimerReady = false; //const seekBar = document.querySelector("#seek-bar");
-
+var isTimerReady = false;
+var startingText;
 var player = new _textaliveAppApi.Player({
   app: {
     token: "6rquYSfCRiWlgifb"
@@ -15438,6 +15562,7 @@ function onVideoSeekEnd() {
 function onTimerReady() {
   console.log("タイマー準備寛容");
   isTimerReady = true;
+  startingText.textContent = "START!";
 }
 
 function onDispose() {
@@ -15665,9 +15790,7 @@ var getDisplayedWords = function getDisplayedWords(position, wordBlocks) {
 
 var bgChange = function bgChange(p5, position, startTime, col) {
   var duration = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 1000;
-  var rectWidth = p5.width / 5; //const moveTime = Math.min(1, p5.map(endTime - position, duration, 0, 0, 1));
-  //console.log("rectWidth : " +rectWidth + " moveTime : "+moveTime);
-
+  var rectWidth = p5.width / 5;
   var moveTime = Math.min(1, p5.map(position - startTime, 0, duration, 0, 1));
   p5.noStroke();
   p5.fill(col);
@@ -15681,8 +15804,7 @@ var bgChange = function bgChange(p5, position, startTime, col) {
 
 var bgChange2 = function bgChange2(p5, position, startTime, col) {
   var duration = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 1000;
-  var size = p5.width / 5; //const moveTime = Math.min(1, p5.map(endTime - position, duration, 0, 0, 1));
-
+  var size = p5.width / 5;
   var moveTime = Math.min(1, p5.map(position - startTime, 0, duration, 0, 1));
   p5.noStroke();
   p5.fill(col);
@@ -15698,9 +15820,8 @@ var bgChange2 = function bgChange2(p5, position, startTime, col) {
 
 var bgChange3 = function bgChange3(p5, position, startTime, col) {
   var duration = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 1000;
-  p5.push(); //const moveTime = Math.min(1, p5.map(endTime - position, duration, 0, 0, 1));
-
   var moveTime = Math.min(1, p5.map(position - startTime, 0, duration, 0, 1));
+  p5.push();
   p5.noStroke();
   p5.fill(col);
   p5.arc(p5.width / 2, p5.height / 2, p5.width + p5.width / 2, p5.height + p5.height / 2, -90, -90 + 360 * _textaliveAppApi.Ease.bounceOut(moveTime));
@@ -15710,37 +15831,57 @@ var bgChange3 = function bgChange3(p5, position, startTime, col) {
 
 var bgChange4 = function bgChange4(p5, position, startTime, col) {
   var duration = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 2000;
-  p5.push(); //const moveTime = Math.min(1, p5.map(endTime - position, duration, 0, 0, 1));
-
   var moveTime = Math.min(1, p5.map(position - startTime, 0, 1000, 0, 1));
-  var moveTime2 = Math.min(1, p5.map(position - startTime, 1000, 2000, 0, 1));
-  var moveTime3 = Math.min(1, p5.map(position - startTime, 1500, duration, 0, 1));
+  var moveTime2 = Math.min(1, p5.map(position - startTime, 800, 1800, 0, 1));
+  var moveTime3 = Math.min(1, p5.map(position - startTime, 1000, duration, 0, 1));
+  p5.push();
   p5.noFill();
-  p5.strokeWeight(10);
   p5.stroke(col);
-  p5.circle(p5.width / 2, p5.height / 2, (p5.width + p5.width / 2) * _textaliveAppApi.Ease.sineOut(moveTime2)); //p5.circle(p5.width / 2, p5.height / 2, (p5.width + p5.width / 2) * Ease.sineOut(moveTime2));
-
+  p5.strokeWeight(30);
+  p5.circle(p5.width / 2, p5.height / 2, (p5.width + p5.width / 2) * _textaliveAppApi.Ease.quintOut(moveTime));
+  if (moveTime2 > 0) p5.circle(p5.width / 2, p5.height / 2, (p5.width + p5.width / 2) * _textaliveAppApi.Ease.quintOut(moveTime2));
+  p5.fill(col);
+  p5.noStroke();
+  if (moveTime3 > 0) p5.circle(p5.width / 2, p5.height / 2, (p5.width + p5.width / 2) * _textaliveAppApi.Ease.quintOut(moveTime3));
   p5.pop();
   return moveTime3;
 };
-/*
-const postludeProcess = (p5, position, charBlock, duration = 3000) => {
-	const endTime = videoEndTime - duration;
-	const vanishCount = Math.min(charBlock.length, p5.map(endTime - position, duration, 0, 0, charBlock.length));
-	//if(vanishCount == charBlock.length)
-	for(let i = 0; i < vanishCount; i++) {
-		while(true) {
-			const index = Math.floor(Math.random() * charBlock.length);
-			if(!vanishedIndex.includes(index)) {
-				charBlock[index]._isDisplayed = false;
-				vanishedIndex.push(index);
-				break;
-			}
-		}
-	}
-}
-*/
 
+var rectHeight_bgChange5;
+
+var bgChange5 = function bgChange5(p5, position, startTime, col) {
+  var duration = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 1000;
+  var rectNum = 10;
+
+  if (!rectHeight_bgChange5) {
+    var rectHeight = [rectNum];
+
+    for (var i = 0; i < rectNum; i++) {
+      rectHeight[i] = p5.random(p5.height / 2 - p5.height / 4, p5.height / 2 + p5.height / 4);
+    }
+
+    rectHeight_bgChange5 = rectHeight;
+  }
+
+  var moveTimeWhole = Math.min(1, p5.map(position - startTime, 0, duration, 0, 1));
+  var rectWidth = p5.width / rectNum;
+  var segD = duration / rectNum;
+  p5.push();
+  p5.rectMode(p5.CORNER);
+  p5.stroke(col);
+  p5.fill(col);
+
+  for (var _i = 0; _i < rectNum; _i++) {
+    var moveTime = Math.min(1, p5.map(position - startTime, _i * segD, _i * segD + segD, 0, 1));
+    var q = p5.height - (p5.height - rectHeight_bgChange5[_i]);
+    p5.rect(_i * rectWidth, p5.height - rectHeight_bgChange5[_i] * _textaliveAppApi.Ease.quintIn(moveTime), rectWidth, q * _textaliveAppApi.Ease.quintIn(moveTime));
+    var l = p5.height - rectHeight_bgChange5[rectNum - _i - 1];
+    p5.rect(p5.width - _i * rectWidth - rectWidth, 0, rectWidth, l * _textaliveAppApi.Ease.quintIn(moveTime));
+  }
+
+  p5.pop();
+  return moveTimeWhole;
+};
 
 new P5(function (p5) {
   var u = 100;
@@ -15809,7 +15950,14 @@ new P5(function (p5) {
 
   var distBgCol;
   var mt;
-  var bgChangePattern = [bgChange, bgChange2, bgChange3];
+  var bgChangePattern = [bgChange, bgChange2, bgChange3, bgChange4, bgChange5];
+  var mousePressStartTime;
+  var currentBeatPos = -1;
+  var pg;
+  var textColorArray;
+  var colorNum = 5;
+  var isTextChanging = false;
+  var colorSegWords = [];
 
   p5.preload = function () {//myFont = p5.loadFont('./assets/MPLUSRounded1c-Light.ttf');
   };
@@ -15936,11 +16084,13 @@ new P5(function (p5) {
         */
 
         btnlist.remove();
-        var playing = p5.createDiv("\n\t\t\t\t\t<ul id=\"List\" class=\"list\">\n\t\t\t\t\t\t<li class=\"item\">\n\t\t\t\t\t\t\t<a id=\"Loaded\", class=\"btn btn-gradient\"><span>START!</span></a>\n\t\t\t\t\t\t</li>\n\t\t\t\t\t</ul>\n\t\t\t\t");
+        var playing = p5.createDiv("\n\t\t\t\t\t<ul id=\"List\" class=\"list\">\n\t\t\t\t\t\t<li class=\"item\">\n\t\t\t\t\t\t\t<a id=\"Loaded\", class=\"btn btn-gradient\"><span>Now Loading...</span></a>\n\t\t\t\t\t\t</li>\n\t\t\t\t\t</ul>\n\t\t\t\t");
         playing.id('playing');
         var playingBtn = document.getElementById("Loaded");
         playingBtn.style.height = cameraSize / 5;
         playingBtn.style.width = cameraSize;
+        startingText = document.querySelector("#Loaded > span");
+        console.log(startingText);
         playingBtn.addEventListener('click', function () {
           console.log("おされたんご");
 
@@ -15953,21 +16103,15 @@ new P5(function (p5) {
         playText.textContent = "選べカス";
       }
     });
-    /*
-    seekBar.addEventListener("change", (e) => {
-        player.video && player.requestMediaSeek(e.target.value);
-      });
-    */
-    //-------------------------------------------
-
     p5.textFont('Monoton');
     p5.rectMode(p5.CENTER);
     p5.textAlign(p5.CENTER, p5.CENTER);
+    p5.imageMode(p5.CENTER);
     p5.colorMode(p5.HSB, 100);
-    p5.frameRate(60);
-    worldCamera = new Camera(p5, canvasW, canvasH); //g = new Grid(p5, canvasW, canvasH);
-
     p5.angleMode(p5.DEGREES);
+    p5.frameRate(60);
+    worldCamera = new Camera(p5, canvasW, canvasH);
+    pg = p5.createGraphics(cameraSize, cameraSize);
     init = false;
   };
 
@@ -15993,8 +16137,8 @@ new P5(function (p5) {
 
       testBlocks = new Array(test.length);
 
-      for (var _i = 0, _test = test; _i < _test.length; _i++) {
-        var p = _test[_i];
+      for (var _i2 = 0, _test = test; _i2 < _test.length; _i2++) {
+        var p = _test[_i2];
         //console.log(p);
         testBlocks[i] = new _PhraseBlock.PhraseBlock(p5, g, p);
         i++;
@@ -16009,32 +16153,32 @@ new P5(function (p5) {
         for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
           var phrase = _step7.value;
 
-          var _iterator8 = _createForOfIteratorHelper(phrase._wordBlocks),
-              _step8;
+          var _iterator9 = _createForOfIteratorHelper(phrase._wordBlocks),
+              _step9;
 
           try {
-            for (_iterator8.s(); !(_step8 = _iterator8.n()).done;) {
-              var word = _step8.value;
+            for (_iterator9.s(); !(_step9 = _iterator9.n()).done;) {
+              var word = _step9.value;
               wordBlocks.push(word);
 
-              var _iterator9 = _createForOfIteratorHelper(word._blocks),
-                  _step9;
+              var _iterator10 = _createForOfIteratorHelper(word._blocks),
+                  _step10;
 
               try {
-                for (_iterator9.s(); !(_step9 = _iterator9.n()).done;) {
-                  var char = _step9.value;
+                for (_iterator10.s(); !(_step10 = _iterator10.n()).done;) {
+                  var char = _step10.value;
                   blocks.push(char);
                 }
               } catch (err) {
-                _iterator9.e(err);
+                _iterator10.e(err);
               } finally {
-                _iterator9.f();
+                _iterator10.f();
               }
             }
           } catch (err) {
-            _iterator8.e(err);
+            _iterator9.e(err);
           } finally {
-            _iterator8.f();
+            _iterator9.f();
           }
         }
       } catch (err) {
@@ -16067,7 +16211,46 @@ new P5(function (p5) {
       console.log(allDisplayedSize['xleng']['minX']); //const xleng = allDisplayedSize['xleng']
 
       wordCenterX = allDisplayedSize['sizeX'] * globalBlockSize / 2;
-      charBlocks = blocks;
+      charBlocks = blocks; //colorNum = 5;
+
+      var segNum = Math.floor(wordBlocks.length / colorNum);
+      var x = 0;
+      var textCol = p5.color(0, 0, 100);
+      var segIndex = 0;
+      var tmpArray = [];
+      console.log(wordBlocks);
+
+      var _iterator8 = _createForOfIteratorHelper(wordBlocks),
+          _step8;
+
+      try {
+        for (_iterator8.s(); !(_step8 = _iterator8.n()).done;) {
+          var _w = _step8.value;
+
+          _w.enableColor(textCol);
+
+          tmpArray.push(_w);
+          x++;
+
+          if (x % segNum == 0) {
+            colorSegWords.push(tmpArray);
+            tmpArray = [];
+            textCol = p5.color(Math.floor(Math.random() * 100), 100, 100);
+            segIndex++;
+          }
+        }
+      } catch (err) {
+        _iterator8.e(err);
+      } finally {
+        _iterator8.f();
+      }
+
+      for (var _i3 = 0, _tmpArray = tmpArray; _i3 < _tmpArray.length; _i3++) {
+        var w = _tmpArray[_i3];
+        colorSegWords[colorSegWords.length - 1].push(w);
+      }
+
+      console.log(colorSegWords);
       init = true;
     } //-----------------------------------------------ここから繰り返しゾーン-----------------------------------------------
 
@@ -16084,12 +16267,8 @@ new P5(function (p5) {
       isChorus = true;
       var res = g.getActiveGridSize(currentChorus.endTime, wordBlocks);
       chorusSize['sizeX'] = res['sizeX'];
-      chorusSize['sizeY'] = res['sizeY'];
-      textColor = {
-        'h': Math.floor(Math.random() * 100),
-        's': 100,
-        'b': 100
-      };
+      chorusSize['sizeY'] = res['sizeY']; //textColor = {'h': Math.floor(Math.random() * 100), 's': 100, 'b': 100 };
+
       console.log("サビです!!!!!!");
     }
 
@@ -16121,18 +16300,41 @@ new P5(function (p5) {
         bgColor = distBgCol;
         mt = null;
         isBgChanging = false;
+        rectHeight_bgChange5 = null;
       }
     }
+
+    var beat = player.findBeat(position);
+
+    if (beat && !isVideoEnd) {
+      var progress = beat.progress(position);
+      pg.background(p5.color(0, 0, 0, 10));
+      pg.erase();
+      pg.circle(pg.width / 2, pg.height / 2, pg.width + pg.width / 4 + pg.width / 4 * _textaliveAppApi.Ease.quintIn(progress));
+      pg.noErase();
+      p5.image(pg, p5.width / 2, p5.height / 2);
+      currentBeatPos = beat.position;
+    }
     /*
-    if(position > bgChangeTime['endTime'] - 1000) {
-    	//console.log("バックグラウンド変えますやで");
-    	const mt = bgChange2(p5, position, bgChangeTime['endTime']);
-    	if(mt >= 1) bgColor = p5.color(60, 85, 100);
+    if (beat && beat.position != currentBeatPos) {
+    	pg.background(p5.color(0, 0, 100, 50));
+    	pg.erase();
+    	pg.circle(pg.width / 2, pg.height / 2, pg.width + 100);
+    	pg.noErase();
+    	p5.image(pg, p5.width / 2, p5.height / 2);
+        currentBeatPos = beat.position;
     }
     */
 
     /*
-    const beat = player.findBeat(position);
+    pg.background(p5.color(0, 0, 100));
+    pg.erase();
+     pg.circle(pg.width / 2, pg.height / 2, pg.width + );
+     pg.noErase();
+    p5.image(pg, p5.width / 2, p5.height / 2);
+    */
+
+    /*
     if(beat) {
     	p5.push();
     	p5.rectMode(p5.CORNER);
@@ -16159,12 +16361,12 @@ new P5(function (p5) {
 
     if (isPostlude || isVideoEnd) {
       var moveTime;
-      if (position) moveTime = p5.min(1, p5.map(videoEndTime - position, 3000, 0, 0, 1));else moveTime = 1;
-      console.log(moveTime);
+      if (position) moveTime = p5.min(1, p5.map(videoEndTime - position, 3000, 0, 0, 1));else moveTime = 1; //console.log(moveTime);
+
       p5.push();
-      p5.noStroke();
-      p5.blendMode(p5.SCREEN);
-      p5.fill(0, 0, 100, 100 * _textaliveAppApi.Ease.quintIn(moveTime));
+      p5.noStroke(); //p5.blendMode(p5.SCREEN);
+
+      if (p5.hue(bgColor) == 0 && p5.saturation(bgColor) == 0 && p5.brightness(bgColor) == 100) p5.fill(0, 0, 0, 100 * _textaliveAppApi.Ease.quintIn(moveTime));else p5.fill(0, 0, 100, 100 * _textaliveAppApi.Ease.quintIn(moveTime));
       var size = p5.width / selectedSong['title'].length;
       p5.textSize(size);
       p5.text(selectedSong['title'], p5.width / 2, p5.height / 2);
@@ -16222,12 +16424,6 @@ new P5(function (p5) {
 
     if (position && !isChorus && !isPostlude) {
       p5.translate(-(autoCamera._x - cameraSize / 2), -(autoCamera._y - cameraSize / 2));
-      /*
-      			if(interlude) {
-      				p5.rotate(p5.radians(autoCamera._angle));
-      			}
-      			*/
-
       p5.scale(autoCamera.zoom);
     } else {
       if (isChorus) {
@@ -16255,26 +16451,26 @@ new P5(function (p5) {
     } //-----------------------------------------------ここから図形描画ゾーン-----------------------------------------------
 
 
-    var _iterator10 = _createForOfIteratorHelper(testBlocks),
-        _step10;
+    var _iterator11 = _createForOfIteratorHelper(testBlocks),
+        _step11;
 
     try {
-      for (_iterator10.s(); !(_step10 = _iterator10.n()).done;) {
-        var _phrase = _step10.value;
+      for (_iterator11.s(); !(_step11 = _iterator11.n()).done;) {
+        var _phrase = _step11.value;
 
-        var _iterator12 = _createForOfIteratorHelper(_phrase._wordBlocks),
-            _step12;
+        var _iterator13 = _createForOfIteratorHelper(_phrase._wordBlocks),
+            _step13;
 
         try {
-          for (_iterator12.s(); !(_step12 = _iterator12.n()).done;) {
-            var _word = _step12.value;
+          for (_iterator13.s(); !(_step13 = _iterator13.n()).done;) {
+            var _word = _step13.value;
 
-            var _iterator13 = _createForOfIteratorHelper(_word._blocks),
-                _step13;
+            var _iterator14 = _createForOfIteratorHelper(_word._blocks),
+                _step14;
 
             try {
-              for (_iterator13.s(); !(_step13 = _iterator13.n()).done;) {
-                var _char = _step13.value;
+              for (_iterator14.s(); !(_step14 = _iterator14.n()).done;) {
+                var _char = _step14.value;
 
                 if (isChorus) {
                   if (_char._startTime < position + 500 && position < _char._endTime) {
@@ -16290,92 +16486,85 @@ new P5(function (p5) {
                   }
                 }
 
-                if (_char._isVanished) continue;
+                if (_char._isVanished) continue; //char._col =p5.color(p5.hue(textColorArray[0]), p5.saturation(textColorArray[0]), p5.brightness(textColorArray[0]));
 
                 if (_char._isDisplayed) {
-                  //char.update();
-                  _char.displayText();
-                } else if (_char._startTime < position + time_fadein) {
-                  _char._col = p5.color(textColor['h'], textColor['s'], textColor['b']);
+                  if (_char._isChangingCol) {
+                    _char.update_changingCol(position); //char.display_changingCol();
 
+                  }
+
+                  _char.displayText(); //char.update();
+
+                } else if (_char._startTime < position + time_fadein) {
+                  //char._col = p5.color(textColor['h'], textColor['s'], textColor['b']);
                   _char.update_fadein(position);
 
                   _char.displayText();
                 }
               }
             } catch (err) {
-              _iterator13.e(err);
+              _iterator14.e(err);
             } finally {
-              _iterator13.f();
+              _iterator14.f();
             }
           }
         } catch (err) {
-          _iterator12.e(err);
+          _iterator13.e(err);
         } finally {
-          _iterator12.f();
+          _iterator13.f();
         }
       }
-    } catch (err) {
-      _iterator10.e(err);
-    } finally {
-      _iterator10.f();
-    }
-
-    var _iterator11 = _createForOfIteratorHelper(balls),
-        _step11;
-
-    try {
-      for (_iterator11.s(); !(_step11 = _iterator11.n()).done;) {
-        var _b3 = _step11.value;
-
-        //if(beat) b.update(beat.progress(position));
-        _b3.drawMulti();
-      }
-      /*
-      if(isPostlude || isVideoEnd) {
-      	const xxx = zoomCamera._distX;
-      	p5.push();
-      	p5.noStroke();
-      	p5.blendMode(p5.SCREEN);
-      	p5.fill(p5.color(0, 0, 100));
-      	p5.textSize( (allDisplayedSize['sizeX'] * globalBlockSize) / selectedSong['title'].length );
-      	p5.rect(wordCenterX, (canvasH / 2), 200);
-      	const min = (canvasW / 2) - ((allDisplayedSize['sizeX'] * globalBlockSize) / 2);
-      	const max = (canvasW / 2) + ((allDisplayedSize['sizeX'] * globalBlockSize) / 2);
-      	p5.rect(min , canvasH / 2, 300);
-      	p5.rect(max , canvasH / 2, 300);
-      	console.log('ひだりがわ : '+ min + ' みぎがわ : '+ max);
-      	console.log('p5 width : '+p5.width + ' canvasW : '+canvasW);
-      	p5.text(selectedSong['title'], p5.width / 2, (canvasH / 2) - 400);
-      	p5.textSize( (allDisplayedSize['sizeX'] * globalBlockSize) / selectedSong['artist'].length );
-      	p5.text(selectedSong['artist'], canvasW / 2, (canvasH / 2) + 300);
-      	p5.pop();
-      }
-      */
-      //g.displayPoint();
-      //drawGrid(p5, canvasW, canvasH);
-
     } catch (err) {
       _iterator11.e(err);
     } finally {
       _iterator11.f();
     }
+
+    var _iterator12 = _createForOfIteratorHelper(balls),
+        _step12;
+
+    try {
+      for (_iterator12.s(); !(_step12 = _iterator12.n()).done;) {
+        var _b3 = _step12.value;
+
+        if (interlude && beat || isPostlude && beat) {
+          _b3.drawMulti(beat.progress(position));
+        } else {
+          _b3.drawMulti();
+        }
+      } //g.displayPoint();
+      //drawGrid(p5, canvasW, canvasH);
+
+    } catch (err) {
+      _iterator12.e(err);
+    } finally {
+      _iterator12.f();
+    }
+  };
+
+  p5.mouseReleased = function () {
+    //if(player.isPlaying && !isBgChanging && !isTextChanging) {
+    if (player.isPlaying && isChorus || player.isPlaying && isPostlude) {
+      var randInt = Math.floor(Math.random() * bgChangePattern.length);
+      mt = bgChangePattern[randInt]; //mt = bgChange5;
+
+      bgChangeStartTime = player.timer.position;
+
+      if (Date.now() - mousePressStartTime > 1000) {
+        if (p5.hue(bgColor) == 0 && p5.saturation(bgColor) == 0 && p5.brightness(bgColor) == 0) distBgCol = p5.color(0, 0, 100);else distBgCol = p5.color(0, 0, 0);
+      } else {
+        distBgCol = p5.color(Math.floor(Math.random() * 100), 80, 80);
+      }
+
+      isBgChanging = true;
+    }
   };
 
   p5.mousePressed = function () {
-    if (player.isPlaying && !isBgChanging) {
-      var randInt = Math.floor(Math.random() * bgChangePattern.length); //mt = bgChangePattern[randInt];
+    mousePressStartTime = Date.now(); //if(!player.isPlaying) return;
 
-      mt = bgChange4; //bgChangeEndTime = player.timer.position + 1000;
-
-      bgChangeStartTime = player.timer.position;
-      distBgCol = p5.color(Math.floor(Math.random() * 100), 80, 80);
-      isBgChanging = true; //if(mt >= 1) bgColor = p5.color(60, 85, 100);
-    } //if(player.isPlaying) player.requestPause();
-    //else player.requestPlay();
-
-
-    if (!player.isPlaying) return;
+    if (isChorus || isPostlude) return;
     console.log('マウス位置 : ' + p5.mouseX + ' / ' + p5.mouseY);
     var posX = p5.mouseX + (autoCamera._x - cameraSize / 2);
     var posY = p5.mouseY + (autoCamera._y - cameraSize / 2);
@@ -16383,40 +16572,85 @@ new P5(function (p5) {
     var selectGridPos = [Math.floor(posY / globalBlockSize), Math.floor(posX / globalBlockSize)];
     console.log('グリッドポジション : ' + selectGridPos[1] + ' / ' + selectGridPos[0]); //クリック位置から該当するブロックオブジェクトを探索
 
-    var _iterator14 = _createForOfIteratorHelper(wordBlocks),
-        _step14;
+    var _iterator15 = _createForOfIteratorHelper(wordBlocks),
+        _step15;
 
     try {
-      for (_iterator14.s(); !(_step14 = _iterator14.n()).done;) {
-        var w = _step14.value;
+      for (_iterator15.s(); !(_step15 = _iterator15.n()).done;) {
+        var w = _step15.value;
 
-        var _iterator15 = _createForOfIteratorHelper(w._posInGrid),
-            _step15;
+        var _iterator16 = _createForOfIteratorHelper(w._posInGrid),
+            _step16;
 
         try {
-          for (_iterator15.s(); !(_step15 = _iterator15.n()).done;) {
-            var pos = _step15.value;
+          for (_iterator16.s(); !(_step16 = _iterator16.n()).done;) {
+            var pos = _step16.value;
 
-            if (pos.toString() === selectGridPos.toString()) {
+            if (pos.toString() === selectGridPos.toString() && w._isVisible) {
               console.log(w.getText);
+              var resultWords = findWordSeg(w); //if(!resultWords) return;
+
+              var distTextColor = p5.color(Math.floor(Math.random() * 100), 100, 100);
+
+              var _iterator17 = _createForOfIteratorHelper(resultWords),
+                  _step17;
+
+              try {
+                for (_iterator17.s(); !(_step17 = _iterator17.n()).done;) {
+                  var _w2 = _step17.value;
+
+                  _w2.changeColor(player.timer.position, distTextColor);
+                } //isTextChanging = true;
+
+              } catch (err) {
+                _iterator17.e(err);
+              } finally {
+                _iterator17.f();
+              }
+
               return;
             }
           }
         } catch (err) {
-          _iterator15.e(err);
+          _iterator16.e(err);
         } finally {
-          _iterator15.f();
+          _iterator16.f();
         }
       }
     } catch (err) {
-      _iterator14.e(err);
+      _iterator15.e(err);
     } finally {
-      _iterator14.f();
+      _iterator15.f();
     }
   };
 
-  p5.doubleClicked = function () {
-    console.log("ダブルクリックされました");
+  var findWordSeg = function findWordSeg(word) {
+    var _iterator18 = _createForOfIteratorHelper(colorSegWords),
+        _step18;
+
+    try {
+      for (_iterator18.s(); !(_step18 = _iterator18.n()).done;) {
+        var seg = _step18.value;
+
+        var _iterator19 = _createForOfIteratorHelper(seg),
+            _step19;
+
+        try {
+          for (_iterator19.s(); !(_step19 = _iterator19.n()).done;) {
+            var s = _step19.value;
+            if (s._posX == word._posX && s._posY == word._posY) return seg;
+          }
+        } catch (err) {
+          _iterator19.e(err);
+        } finally {
+          _iterator19.f();
+        }
+      }
+    } catch (err) {
+      _iterator18.e(err);
+    } finally {
+      _iterator18.f();
+    }
   };
 
   var postludeProcess = function postludeProcess(p5, position, charBlock) {
@@ -16558,8 +16792,7 @@ var ZoomCamera = /*#__PURE__*/function () {
 
       this._x = this.preX + (this.distX - this.preX) * _textaliveAppApi.Ease.quintOut(this.moveTime);
       this._y = this.preY + (this.distY - this.preY) * _textaliveAppApi.Ease.quintOut(this.moveTime);
-      this._zoom = 1 - (1 - this.distScale) * _textaliveAppApi.Ease.quintOut(this.moveTime);
-      console.log('moveTime : ' + this.moveTime + ' x : ' + this._x + ' y : ' + this._y + ' zoom : ' + this._zoom);
+      this._zoom = 1 - (1 - this.distScale) * _textaliveAppApi.Ease.quintOut(this.moveTime); //console.log('moveTime : '+this.moveTime+' x : '+this._x+' y : '+this._y+' zoom : '+this._zoom);
     }
   }, {
     key: "setInit",
@@ -16646,59 +16879,115 @@ var AutoCamera = /*#__PURE__*/function () {
     this.angle = 0;
     this.preAngle = 0;
     this.distAngle = 0;
+    this.interludeSeg = [];
+    this.currentInterludeSegIndex = 0;
+    this.endInterlude = false;
   }
 
   _createClass(AutoCamera, [{
     key: "init_interlude",
     value: function init_interlude(position, interlude, displayedWords) {
-      var index = Math.floor(Math.random() * displayedWords.length);
-      console.log(index);
-      console.log(displayedWords);
-      this.distX = displayedWords[index]._posX;
-      this.distY = displayedWords[index]._posY;
-      this.preX = this.x;
-      this.preY = this.y;
-      this.startTime = interlude['startTime']; //this.endTime = interlude['endTime'];
+      var duration = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 3000;
+      this.interludeSeg = [];
+      this.currentInterludeSegIndex = 0;
+      this.endInterlude = false;
+      var interludeTime = interlude['endTime'] - interlude['startTime'];
+      var interludeSegNum = interludeTime / duration;
+      var remainTime = 0;
 
-      this.moveLimit = interlude['endTime'] - interlude['startTime'];
-      var angle = displayedWords[index]._dir;
-      console.log(displayedWords[index]._dir);
-
-      switch (angle) {
-        case 'N':
-          this.distAngle = 0;
-          break;
-
-        case 'S':
-          this.distAngle = 180;
-          break;
-
-        case 'E':
-          this.distAngle = 90;
-          break;
-
-        case 'W':
-          this.distAngle = 270;
-          break;
+      for (var i = 0; i < Math.floor(interludeSegNum); i++) {
+        var index = Math.floor(Math.random() * displayedWords.length);
+        if (i == interludeSegNum - 1) remainTime = interludeTime % duration;
+        console.log(remainTime);
+        this.interludeSeg.push({
+          "startTime": interlude['startTime'] + i * duration,
+          "endTime": interlude['startTime'] + duration + duration * i + remainTime,
+          "posX": displayedWords[index]._posX,
+          "posY": displayedWords[index]._posY
+        });
       }
 
+      this.preX = this.x;
+      this.preY = this.y;
+      this.distX = this.interludeSeg[0]["posX"];
+      this.distY = this.interludeSeg[0]["posY"];
+      this.startTime = this.interludeSeg[0]["startTime"];
+      this.endTime = this.interludeSeg[0]["endTime"];
+      this.moveLimit = this.endTime - this.startTime;
       this.isInit = true;
     }
+    /*
+    init_interlude(position, interlude, displayedWords) {
+    	const index = Math.floor(Math.random() * displayedWords.length);
+    	console.log(index);
+    	console.log(displayedWords);
+    	this.distX = displayedWords[index]._posX;
+    	this.distY = displayedWords[index]._posY;
+    	this.preX = this.x;
+    	this.preY = this.y;
+    	this.startTime = interlude['startTime'];
+    	//this.endTime = interlude['endTime'];
+    	this.moveLimit = interlude['endTime'] - interlude['startTime'];
+    	const angle = displayedWords[index]._dir;
+    	console.log(displayedWords[index]._dir);
+    	switch(angle) {
+         case 'N':
+           this.distAngle = 0;
+           break;
+         case 'S':
+           this.distAngle = 180;
+           break;
+         case 'E':
+           this.distAngle = 90;
+           break;
+         case 'W':
+           this.distAngle = 270;
+           break;
+       }
+    	this.isInit = true;
+    }
+    */
+
   }, {
     key: "update_interlude",
     value: function update_interlude(position) {
-      this.moveTime = (position - this.startTime) / this.moveLimit;
-      this.x = this.preX + (this.distX - this.preX) * _textaliveAppApi.Ease.quintOut(this.moveTime);
-      this.y = this.preY + (this.distY - this.preY) * _textaliveAppApi.Ease.quintOut(this.moveTime);
-      this.angle = this.preAngle + this.distAngle * _textaliveAppApi.Ease.quintOut(this.moveTime); //console.log("angle : "+this.angle + "  ( distAngle : "+this.distAngle+" )");
+      if (this.endInterlude) return;
+      this.moveTime = Math.min(1, this.p.map(position - this.startTime, 0, this.moveLimit, 0, 1));
+      this.x = this.preX + (this.distX - this.preX) * _textaliveAppApi.Ease.quintIn(this.moveTime);
+      this.y = this.preY + (this.distY - this.preY) * _textaliveAppApi.Ease.quintIn(this.moveTime);
+
+      if (this.moveTime == 1) {
+        this.currentInterludeSegIndex++;
+        console.log(this.currentInterludeSegIndex);
+        console.log(this.interludeSeg.length);
+
+        if (this.currentInterludeSegIndex < this.interludeSeg.length) {
+          var currentInterlude = this.interludeSeg[this.currentInterludeSegIndex];
+          this.preX = this.x;
+          this.preY = this.y;
+          this.distX = currentInterlude["posX"];
+          this.distY = currentInterlude["posY"];
+          this.startTime = currentInterlude["startTime"];
+          this.endTime = currentInterlude["endTime"];
+          this.moveLimit = this.endTime - this.startTime;
+        } else {
+          this.endInterlude = true;
+        }
+      }
     }
+    /*
+    update_interlude(position) {
+    	this.moveTime = (position - this.startTime) / this.moveLimit;
+    	this.x = this.preX + (this.distX - this.preX) * Ease.quintOut(this.moveTime);
+    	this.y = this.preY + (this.distY - this.preY) * Ease.quintOut(this.moveTime);
+    	this.angle = this.preAngle + this.distAngle * Ease.quintOut(this.moveTime);
+    	//console.log("angle : "+this.angle + "  ( distAngle : "+this.distAngle+" )");
+    }
+    */
+
   }, {
     key: "update",
     value: function update(position, isChorus) {
-      //console.log('カメラ : ' +this.x + ' / '+this.y);
-      //console.log("テキスト : " + this.block[this.index]._text);
-      //console.log('dist : '+ this.distX + ' / '+this.distY);
-
       /*
       if(isChorus) {
       	this._zoom = 0.5;
@@ -16712,9 +17001,7 @@ var AutoCamera = /*#__PURE__*/function () {
       if (this.quickMove) {
         console.log("クイックムーブ！！！");
         this.x = this.block[this.index - 1]._posX;
-        this.y = this.block[this.index - 1]._posY; //this.x = this.distX;
-        //this.y = this.distY;
-
+        this.y = this.block[this.index - 1]._posY;
         console.log(this.x + "  " + this.y);
         this.quickMove = false;
       } else {
@@ -16839,7 +17126,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60847" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62833" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

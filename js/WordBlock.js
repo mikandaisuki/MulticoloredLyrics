@@ -225,6 +225,28 @@ export class WordBlock {
     this.posInGrid = posInGrid;
   }
 
+  enableColor(col) {
+    for(let b of this.blocks) {
+      b._col = col;
+    }
+  }
+
+  changeColor(position, col) {
+    //console.log("ちぇんんんんん");
+    for(let b of this.blocks) {
+      b._isChangingCol = true;
+      b._newCol = col;
+      b._startChangeTime = position;
+    }
+  }
+
+  get _isVisible() {
+    for(let b of this.blocks) {
+      if(b._isVisible) return true;
+    }
+    return false;
+  }
+
   get _posInGrid() {
     return this.posInGrid;
   }
